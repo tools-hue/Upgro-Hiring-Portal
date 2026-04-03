@@ -1181,5 +1181,197 @@ function renderCalendar(){
   grid.innerHTML=h;
 }
 </script>
+
+<style id="interactive-fix-styles">
+.sc{cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.sc:hover{transform:translateY(-2px);border-color:var(--blue);box-shadow:0 10px 24px rgba(15,23,42,.08)}
+.set-row{transition:background .15s}
+.set-row:hover{background:var(--s05)}
+.btn[disabled]{opacity:.6;pointer-events:none}
+</style>
+<script id="interactive-fix-script">
+(function(){
+  const SETTINGS_KEY='upgroPortalSettingsV1';
+  const DEFAULT_SETTINGS={
+    reminderAutomation:true,
+    rejectionAuto:true,
+    selectedAuto:true,
+    offerTracking:true,
+    duplicateDetection:true,
+    primarySender:'info@upgromedia.com',
+    syncInterval:'Every 15 minutes',
+    brandColor:'#E8272A'
+  };
+
+  function safeFlash(msg){
+    if(typeof showFlash==='function') showFlash(msg);
+    else alert(msg);
+  }
+  function readSettings(){
+    try{return Object.assign({},DEFAULT_SETTINGS,JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}'));}
+    catch(e){return {...DEFAULT_SETTINGS};}
+  }
+  function saveSettings(data){
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(data));
+  }
+
+  function downloadCSV(filename, rows){
+    const esc=v => '"'+String(v??'').replace(/"/g,'""')+'"';
+    const csv=rows.map(r=>r.map(esc).join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function exportCandidates(){
+    const rows=[['Candidate','Email','Role','Source','Applied','Experience','Status']];
+    (window.allCands||[]).forEach(c=>rows.push([c.n,c.e,c.r,c.src,c.d,c.exp,(window.sMap&&sMap[c.s]?sMap[c.s].lbl:c.s)]));
+    downloadCSV('upgro-candidates.csv',rows);
+    safeFlash('Candidate CSV exported successfully.');
+  }
+
+  function openMeet(name){
+    const url='https://meet.google.com/';
+    window.open(url,'_blank');
+    safeFlash('Google Meet opened for '+name+'.');
+  }
+
+  function wireKpis(){
+    document.querySelectorAll('#page-dashboard .sg4 .sc').forEach(card=>{
+      const label=card.querySelector('.sc-label')?.textContent.trim();
+      card.onclick=()=>{
+        if(label==='Total Candidates') goTo('candidates');
+        else if(label==='Interviews Today') goTo('interviews');
+        else if(label==='Selected') goTo('selected');
+        else if(label==='Rejected') goTo('rejected');
+      };
+      card.title='Click to open related page';
+    });
+    document.querySelectorAll('#page-interviews .sg3 .sc').forEach(card=>{
+      const label=card.querySelector('.sc-label')?.textContent.trim();
+      card.onclick=()=> label==='Today' ? goTo('interviews') : label==='Tomorrow' ? goTo('calendar') : goTo('interviews');
+      card.title='Click to open related page';
+    });
+    document.querySelectorAll('.pipe-row').forEach(row=>{
+      const label=row.querySelector('.pipe-name')?.textContent.trim();
+      row.style.cursor='pointer';
+      row.onclick=()=>{
+        if(label==='Selected') goTo('selected');
+        else if(label==='Rejected') goTo('rejected');
+        else if(label==='Interview Scheduled') goTo('interviews');
+        else goTo('candidates');
+      };
+    });
+  }
+
+  function wireButtons(){
+    document.querySelectorAll('button').forEach(btn=>{
+      const text=btn.textContent.trim();
+      if(text.includes('Export CSV')) btn.onclick=exportCandidates;
+      else if(text.includes('Schedule New')) btn.onclick=()=>openModal('mo-sched');
+      else if(text.includes('Schedule') && btn.closest('.prof-acts')) btn.onclick=()=>openModal('mo-sched');
+      else if(text==='View' && btn.closest('tr')) btn.onclick=(e)=>{e.stopPropagation();goTo('detail');};
+      else if(text.includes('Shortlist')) btn.onclick=()=>{goTo('shortlisted');safeFlash('Candidate moved to Shortlisted view.');};
+      else if(text.includes('Select')) btn.onclick=()=>{goTo('selected');safeFlash('Candidate moved to Selected view.');};
+      else if(text.includes('Reject')) btn.onclick=()=>{goTo('rejected');safeFlash('Candidate marked for rejection workflow.');};
+    });
+    document.querySelectorAll('.meet-btn').forEach((btn,idx)=>{
+      btn.onclick=(e)=>{e.stopPropagation();openMeet('Interview '+(idx+1));};
+    });
+    document.querySelectorAll('.iv').forEach(iv=>{
+      if(!iv.getAttribute('onclick')) iv.onclick=()=>goTo('detail');
+    });
+    document.querySelectorAll('.ep').forEach(ep=>{
+      ep.onclick=()=>goTo('emails');
+      ep.title='Open email templates page';
+    });
+    document.querySelectorAll('.sheet-c').forEach(card=>{
+      card.style.cursor='pointer';
+      card.onclick=()=>safeFlash('Sheet connected and syncing successfully.');
+    });
+    document.querySelectorAll('.exp-opt').forEach(opt=>{
+      opt.onclick=()=>{ exportCandidates(); };
+    });
+  }
+
+  function wireSettings(){
+    const settings=readSettings();
+    const rows=[...document.querySelectorAll('#page-settings .set-row')];
+    rows.forEach(row=>{
+      const key=row.querySelector('.set-key')?.textContent.trim();
+      const checkbox=row.querySelector('input[type="checkbox"]');
+      const select=row.querySelector('select');
+      const color=row.querySelector('input[type="color"]');
+      const desc=row.querySelector('.set-desc');
+      const button=row.querySelector('button');
+
+      if(key==='30-min Reminder Automation' && checkbox){checkbox.checked=settings.reminderAutomation;checkbox.onchange=()=>{settings.reminderAutomation=checkbox.checked;saveSettings(settings);safeFlash('30-min reminder automation '+(checkbox.checked?'enabled.':'disabled.'));};}
+      if(key==='Rejection Email Auto-send' && checkbox){checkbox.checked=settings.rejectionAuto;checkbox.onchange=()=>{settings.rejectionAuto=checkbox.checked;saveSettings(settings);safeFlash('Rejection email auto-send '+(checkbox.checked?'enabled.':'disabled.'));};}
+      if(key==='Selected Email Auto-send' && checkbox){checkbox.checked=settings.selectedAuto;checkbox.onchange=()=>{settings.selectedAuto=checkbox.checked;saveSettings(settings);safeFlash('Selected email automation '+(checkbox.checked?'enabled.':'disabled.'));};}
+      if(key==='Offer Acceptance Tracking' && checkbox){checkbox.checked=settings.offerTracking;checkbox.onchange=()=>{settings.offerTracking=checkbox.checked;saveSettings(settings);safeFlash('Offer acceptance tracking '+(checkbox.checked?'enabled.':'disabled.'));};}
+      if(key==='Duplicate Detection' && checkbox){checkbox.checked=settings.duplicateDetection;checkbox.onchange=()=>{settings.duplicateDetection=checkbox.checked;saveSettings(settings);safeFlash('Duplicate detection '+(checkbox.checked?'enabled.':'disabled.'));};}
+      if(key==='Auto Sync Interval' && select){select.value=settings.syncInterval;select.onchange=()=>{settings.syncInterval=select.value;saveSettings(settings);safeFlash('Auto sync interval updated to '+select.value+'.');};}
+      if(key==='Primary Brand Color' && color){color.value=settings.brandColor;color.oninput=()=>{document.documentElement.style.setProperty('--brand',color.value);settings.brandColor=color.value;saveSettings(settings);};color.onchange=()=>safeFlash('Brand color updated successfully.');}
+      if(key==='Primary Sender Email' && button && desc){desc.textContent=settings.primarySender;button.onclick=()=>{const v=prompt('Enter primary sender email',settings.primarySender);if(v){settings.primarySender=v.trim();desc.textContent=settings.primarySender;saveSettings(settings);safeFlash('Primary sender email updated to '+settings.primarySender);}};}
+      if(key==='Company Name'){ row.style.cursor='pointer'; row.onclick=()=>safeFlash('Company name is UpGro Media. This field is locked for branding consistency.'); }
+      if(key==='Data Start Date'){ row.style.cursor='pointer'; row.onclick=()=>safeFlash('Data start date is fixed to 01 Apr 2026 as per portal rule.'); }
+    });
+  }
+
+  function persistLogin(){
+    const oldHandle=window.handleLogin;
+    if(typeof oldHandle==='function'){
+      window.handleLogin=function(){
+        const email=document.getElementById('lemail').value.trim();
+        oldHandle();
+        setTimeout(()=>{
+          if(document.getElementById('portal-screen').style.display==='flex'){
+            localStorage.setItem('upgroPortalLoggedIn','1');
+            localStorage.setItem('upgroPortalUser',email);
+          }
+        },950);
+      }
+    }
+    const oldLogout=window.doLogout;
+    if(typeof oldLogout==='function'){
+      window.doLogout=function(){
+        localStorage.removeItem('upgroPortalLoggedIn');
+        localStorage.removeItem('upgroPortalUser');
+        oldLogout();
+      }
+    }
+  }
+
+  function autoLoginRestore(){
+    if(localStorage.getItem('upgroPortalLoggedIn')==='1'){
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('portal-screen').style.display='flex';
+      const email=(localStorage.getItem('upgroPortalUser')||'info@upgromedia.com');
+      const name=email.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      const initials=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const sbn=document.getElementById('sb-name'); if(sbn) sbn.textContent=name;
+      const sba=document.getElementById('sb-ava'); if(sba) sba.textContent=initials;
+      const tba=document.getElementById('tb-ava'); if(tba) tba.textContent=initials;
+      if(typeof renderCandidatesTable==='function') renderCandidatesTable();
+      if(typeof renderSelectedTable==='function') renderSelectedTable();
+      if(typeof renderCalendar==='function') renderCalendar();
+    }
+  }
+
+  window.addEventListener('load',()=>{
+    persistLogin();
+    wireKpis();
+    wireButtons();
+    wireSettings();
+    autoLoginRestore();
+  });
+})();
+</script>
+
 </body>
 </html>
