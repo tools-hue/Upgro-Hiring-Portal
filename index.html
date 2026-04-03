@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UpGro Media — Hiring Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════ LOGIN STYLES ═══════════════════════ -->
+<style id="login-styles">
+#login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#0a1628;overflow:hidden;font-family:'Outfit',sans-serif}
+.bg-mesh{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(27,79,216,.18) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 70%,rgba(232,39,42,.12) 0%,transparent 60%),radial-gradient(ellipse 100% 100% at 50% 50%,rgba(15,23,42,1) 0%,#0a1628 100%)}
+.bg-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px}
+.bg-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(27,79,216,.12) 0%,transparent 70%);top:-150px;left:-150px;animation:pulse 6s ease-in-out infinite}
+.bg-glow2{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(232,39,42,.08) 0%,transparent 70%);bottom:-100px;right:-100px;animation:pulse 8s ease-in-out infinite reverse}
+@keyframes pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.particle{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.15);animation:floatup linear infinite}
+@keyframes floatup{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100px) translateX(30px);opacity:0}}
+.login-wrap{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:420px;padding:20px;animation:fadeUp .6s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.brand-card{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px 28px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;backdrop-filter:blur(12px)}
+.logo-wrap{width:72px;height:72px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.1);overflow:hidden;padding:4px}
+.logo-wrap img{width:100%;height:100%;object-fit:contain}
+.brand-sub{font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:center}
+.login-card-l{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:28px;backdrop-filter:blur(12px);box-shadow:0 24px 64px rgba(0,0,0,.4)}
+.lcard-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.lcard-sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:24px}
+.lfield{margin-bottom:16px}
+.lfield-label{display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#1B4FD8;margin-bottom:7px}
+.lfield-wrap{position:relative}
+.lfield-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;font-size:14px;font-family:'Outfit',sans-serif;color:#fff;outline:none;transition:border-color .2s,background .2s}
+.lfield-input::placeholder{color:rgba(255,255,255,.2)}
+.lfield-input:focus{border-color:rgba(27,79,216,.7);background:rgba(27,79,216,.08)}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,.3);padding:2px;transition:color .2s}
+.eye-btn:hover{color:rgba(255,255,255,.6)}
+.signin-btn{width:100%;margin-top:8px;background:linear-gradient(135deg,#1B4FD8,#1440b8);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 20px rgba(27,79,216,.4)}
+.signin-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(27,79,216,.55)}
+.signin-btn.loading{pointer-events:none;opacity:.7}
+.lerror-msg{background:rgba(232,39,42,.12);border:1px solid rgba(232,39,42,.3);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#ff6b6e;margin-bottom:14px;display:none}
+.lerror-msg.show{display:block}
+.login-footer{font-size:11.5px;color:rgba(255,255,255,.2);display:flex;align-items:center;gap:6px}
+</style>
+
+<!-- ═══════════════════════════════════════ PORTAL STYLES ═══════════════════════ -->
+<style id="portal-styles">
+#portal-screen{display:none}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#E8272A;--brand-d:#B81E20;--brand-l:#FDE8E8;
+  --blue:#1B4FD8;--blue-l:#EEF2FF;
+  --green:#15803D;--green-l:#DCFCE7;
+  --amber:#B45309;--amber-l:#FEF3C7;
+  --purple:#6D28D9;--purple-l:#EDE9FE;
+  --teal:#0D9488;--teal-l:#CCFBF1;
+  --slate:#0F172A;--s6:#475569;--s4:#94A3B8;--s2:#E2E8F0;--s1:#F1F5F9;--s05:#F8FAFC;
+  --sw:230px;--font:'Inter',sans-serif;
+}
+body{font-family:var(--font);background:var(--s05);color:var(--slate);font-size:14px;line-height:1.5;overflow:hidden;height:100vh;display:flex}
+.sb{width:var(--sw);background:#0F172A;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;scrollbar-width:none}
+.sb::-webkit-scrollbar{display:none}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:10px}
+.sb-logo-mark{width:38px;height:38px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:12px;color:#fff;letter-spacing:-0.5px}
+.sb-logo-text{color:#fff;font-size:13px;font-weight:700;line-height:1.2}
+.sb-logo-sub{color:rgba(255,255,255,0.35);font-size:10px;font-weight:400}
+.sb-sec{padding:16px 10px 4px}
+.sb-lbl{color:rgba(255,255,255,0.25);font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:0 6px 6px}
+.nav{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.5);font-size:12.5px;font-weight:400;transition:all .15s;margin-bottom:1px;user-select:none;position:relative}
+.nav:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85)}
+.nav.active{background:var(--brand);color:#fff;font-weight:500}
+.nav svg{width:15px;height:15px;flex-shrink:0;opacity:.75}
+.nav.active svg{opacity:1}
+.nb{margin-left:auto;background:rgba(255,255,255,0.18);color:#fff;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:10px}
+.nav.active .nb{background:rgba(255,255,255,0.28)}
+.sb-bot{margin-top:auto;padding:14px 10px;border-top:1px solid rgba(255,255,255,0.07)}
+.user-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.55);font-size:12px;transition:background .15s}
+.user-row:hover{background:rgba(255,255,255,0.06)}
+.ava{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tb{background:#fff;border-bottom:1px solid var(--s2);padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tb-title{font-size:14px;font-weight:700;color:var(--slate)}
+.tb-sub{font-size:11px;color:var(--s4)}
+.tb-right{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12.5px;font-weight:500;font-family:var(--font);transition:all .15s;text-decoration:none;white-space:nowrap}
+.btn-p{background:var(--brand);color:#fff}.btn-p:hover{background:var(--brand-d)}
+.btn-g{background:#fff;color:var(--s6);border:1px solid var(--s2)}.btn-g:hover{background:var(--s1)}
+.btn-sm{padding:5px 10px;font-size:11.5px}
+.notif-wrap{position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid var(--s2);background:#fff}
+.notif-wrap:hover{background:var(--s1)}
+.nd{width:7px;height:7px;background:var(--brand);border-radius:50%;position:absolute;top:4px;right:4px;border:1.5px solid #fff}
+.tb-ava{width:34px;height:34px;border-radius:10px;background:var(--brand-l);color:var(--brand);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.content{flex:1;overflow-y:auto;padding:22px 24px}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:var(--s2);border-radius:3px}
+.page{display:none}.page.active{display:block}
+.sg4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.sg3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.sg2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.sc{background:#fff;border:1px solid var(--s2);border-radius:12px;padding:15px 18px;position:relative;overflow:hidden}
+.sc-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.sc-label{font-size:10.5px;color:var(--s4);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.sc-val{font-size:26px;font-weight:700;color:var(--slate);line-height:1;margin-bottom:4px}
+.sc-trend{font-size:11px;font-weight:500}
+.t-up{color:var(--green)}.t-warn{color:var(--amber)}.t-down{color:var(--brand)}
+.card{background:#fff;border:1px solid var(--s2);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.card-hd{padding:13px 18px;border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-title{font-size:13px;font-weight:600}
+.card-act{font-size:12px;color:var(--blue);cursor:pointer;font-weight:500}.card-act:hover{text-decoration:underline}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 15px;text-align:left;font-size:10.5px;font-weight:700;color:var(--s4);text-transform:uppercase;letter-spacing:.5px;background:var(--s05);border-bottom:1px solid var(--s1);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--s1);transition:background .1s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--s05)}
+td{padding:11px 15px;font-size:13px}
+.td-name{font-weight:600;font-size:13px}
+.td-email{font-size:11px;color:var(--s4);margin-top:1px}
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--s1)}
+.srch{display:flex;align-items:center;gap:7px;background:var(--s05);border:1px solid var(--s2);border-radius:8px;padding:6px 11px;min-width:220px}
+.srch input{border:none;background:transparent;font-size:12.5px;color:var(--slate);outline:none;font-family:var(--font);width:100%}
+.srch input::placeholder{color:var(--s4)}
+select.fsel,input.fsel{border:1px solid var(--s2);border-radius:8px;padding:6px 10px;font-size:12px;font-family:var(--font);color:var(--s6);background:#fff;outline:none;cursor:pointer}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:600;white-space:nowrap}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.b-new{background:var(--blue-l);color:var(--blue)}.b-new::before{background:var(--blue)}
+.b-sch{background:var(--purple-l);color:var(--purple)}.b-sch::before{background:var(--purple)}
+.b-shl{background:var(--amber-l);color:var(--amber)}.b-shl::before{background:var(--amber)}
+.b-sel{background:var(--green-l);color:var(--green)}.b-sel::before{background:var(--green)}
+.b-rej{background:var(--brand-l);color:var(--brand)}.b-rej::before{background:var(--brand)}
+.b-com{background:var(--teal-l);color:var(--teal)}.b-com::before{background:var(--teal)}
+.b-inc{background:#FFFBEB;color:#92400E}.b-inc::before{background:#92400E}
+.b-fin{background:var(--purple-l);color:#6B21A8}.b-fin::before{background:#6B21A8}
+.b-ok{background:var(--green-l);color:var(--green);border-radius:6px}
+.b-offer-sent{background:#f0fdf4;color:#15803d}.b-offer-sent::before{background:#15803d}
+.b-accepted{background:#dcfce7;color:#166534}.b-accepted::before{background:#166534}
+.b-declined{background:var(--brand-l);color:var(--brand)}.b-declined::before{background:var(--brand)}
+.b-await-offer{background:var(--amber-l);color:var(--amber)}.b-await-offer::before{background:var(--amber)}
+.b-doc-done{background:var(--teal-l);color:var(--teal)}.b-doc-done::before{background:var(--teal)}
+.b-doc-pend{background:#fff7ed;color:#c2410c}.b-doc-pend::before{background:#c2410c}
+.b-join-changed{background:#fef3c7;color:#92400e}.b-join-changed::before{background:#92400e}
+.rp{display:inline-block;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:600}
+.rp-gd{background:var(--blue-l);color:var(--blue)}
+.rp-ve{background:var(--purple-l);color:var(--purple)}
+.rp-cw{background:var(--green-l);color:var(--green)}
+.rp-sm{background:var(--amber-l);color:var(--amber)}
+.src-tag{display:inline-block;padding:2px 7px;background:var(--s1);border-radius:4px;font-size:10.5px;color:var(--s6);font-family:'JetBrains Mono',monospace}
+.pipe{display:flex;flex-direction:column;gap:5px;padding:14px 16px}
+.pipe-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--s05);border:1px solid var(--s1);border-radius:8px}
+.pipe-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pipe-name{font-size:12px;font-weight:500;flex:1;white-space:nowrap}
+.pipe-bw{flex:2;height:5px;background:var(--s2);border-radius:3px;overflow:hidden}
+.pipe-b{height:100%;border-radius:3px;transition:width .7s ease}
+.pipe-n{font-size:13px;font-weight:700;min-width:28px;text-align:right}
+.bchart{display:flex;align-items:flex-end;gap:5px;height:80px;padding:0 2px}
+.bcol{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.bbar{width:100%;border-radius:3px 3px 0 0;min-height:4px;transition:height .5s}
+.blbl{font-size:9px;color:var(--s4);font-weight:500}
+.iv{display:flex;align-items:center;gap:12px;padding:12px 15px;background:#fff;border:1px solid var(--s2);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.iv:hover{border-color:var(--blue)}
+.iv-time{text-align:center;min-width:50px;flex-shrink:0}
+.iv-tv{font-size:14px;font-weight:700}
+.iv-tl{font-size:9.5px;color:var(--s4)}
+.iv-div{width:1px;height:34px;background:var(--s2);flex-shrink:0}
+.iv-info{flex:1;min-width:0}
+.iv-name{font-size:13px;font-weight:600}
+.iv-role{font-size:11.5px;color:var(--s4);margin-top:1px}
+.meet-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--blue);background:var(--blue-l);padding:4px 10px;border-radius:20px;font-weight:600;flex-shrink:0;cursor:pointer;border:none;font-family:var(--font)}
+.prof-hd{background:#fff;border:1px solid var(--s2);border-radius:12px;padding:20px 22px;margin-bottom:18px;display:flex;align-items:flex-start;gap:18px}
+.prof-ava{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0}
+.prof-name{font-size:18px;font-weight:700;margin-bottom:5px}
+.prof-meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:7px}
+.prof-mi{font-size:11.5px;color:var(--s6);display:flex;align-items:center;gap:4px}
+.prof-acts{display:flex;gap:7px;margin-left:auto;align-items:flex-start;flex-wrap:wrap}
+.info3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.icard{background:#fff;border:1px solid var(--s2);border-radius:10px;padding:14px 16px}
+.icard-t{font-size:10px;font-weight:700;color:var(--s4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.irow{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--s1);gap:8px}
+.irow:last-child{border-bottom:none;padding-bottom:0}
+.ik{font-size:11.5px;color:var(--s4)}
+.iv2{font-size:11.5px;color:var(--slate);font-weight:500;text-align:right}
+.tl{list-style:none;padding-left:18px;position:relative}
+.tl::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:1px;background:var(--s2)}
+.tl-i{position:relative;padding-bottom:14px}
+.tl-d{position:absolute;left:-18px;width:13px;height:13px;border-radius:50%;background:#fff;border:2px solid var(--s2);top:2px}
+.tl-d.blue{border-color:var(--blue);background:var(--blue-l)}
+.tl-d.green{border-color:var(--green);background:var(--green-l)}
+.tl-d.amber{border-color:var(--amber);background:var(--amber-l)}
+.tl-time{font-size:10px;color:var(--s4);margin-bottom:2px}
+.tl-txt{font-size:12px;color:var(--s6)}
+.tl-txt strong{color:var(--slate)}
+.fg{margin-bottom:14px}
+.fl{font-size:11.5px;font-weight:600;color:var(--s6);margin-bottom:5px;display:block}
+.fi,.fta,.fsel-full{width:100%;border:1px solid var(--s2);border-radius:8px;padding:8px 11px;font-size:13px;font-family:var(--font);color:var(--slate);outline:none;transition:border-color .15s;background:#fff}
+.fi:focus,.fta:focus,.fsel-full:focus{border-color:var(--blue)}
+.fta{resize:vertical;min-height:72px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
+.mo.open{opacity:1;pointer-events:all}
+.modal-box{background:#fff;border-radius:14px;width:560px;max-height:88vh;overflow-y:auto;transform:scale(.96);transition:transform .2s}
+.mo.open .modal-box{transform:scale(1)}
+.mhd{padding:18px 22px 0;display:flex;align-items:center;justify-content:space-between}
+.mhd-title{font-size:15px;font-weight:700}
+.mcl{width:28px;height:28px;border-radius:6px;border:1px solid var(--s2);background:transparent;cursor:pointer;font-size:15px;color:var(--s4);display:flex;align-items:center;justify-content:center}
+.mcl:hover{background:var(--s1)}
+.mbd{padding:18px 22px 22px}
+.modal-box::-webkit-scrollbar{width:4px}
+.modal-box::-webkit-scrollbar-thumb{background:var(--s2);border-radius:2px}
+.sheet-c{background:#fff;border:1px solid var(--s2);border-radius:10px;padding:13px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px}
+.sheet-ico{width:36px;height:36px;background:var(--green-l);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sheet-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.sheet-url{font-size:10px;color:var(--s4);font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px}
+.sheet-stats{display:flex;gap:14px;margin-top:6px}
+.sheet-stat{font-size:11px;color:var(--s6)}
+.sheet-stat span{font-weight:600;color:var(--slate)}
+.ep{border:1px solid var(--s2);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s;margin-bottom:10px}
+.ep:hover{border-color:var(--blue)}
+.ep-hd{padding:10px 14px;background:var(--s05);border-bottom:1px solid var(--s1);display:flex;align-items:center;justify-content:space-between}
+.ep-subj{font-size:12px;font-weight:600}
+.ep-body{padding:10px 14px;font-size:12px;color:var(--s6);line-height:1.6}
+.tog{position:relative;width:36px;height:20px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.tog-sl{position:absolute;inset:0;background:var(--s2);border-radius:10px;cursor:pointer;transition:.2s}
+.tog-sl::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.tog input:checked+.tog-sl{background:var(--green)}
+.tog input:checked+.tog-sl::before{transform:translateX(16px)}
+.exp-opt{display:flex;align-items:center;gap:12px;padding:13px 16px;border:1px solid var(--s2);border-radius:10px;margin-bottom:8px;cursor:pointer;background:#fff;transition:border-color .15s}
+.exp-opt:hover{border-color:var(--blue)}
+.exp-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.set-card{background:#fff;border:1px solid var(--s2);border-radius:12px;overflow:hidden;margin-bottom:18px}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--s1)}
+.set-row:last-child{border-bottom:none}
+.set-key{font-size:13px;font-weight:500}
+.set-desc{font-size:11px;color:var(--s4);margin-top:2px}
+.sec-hd{padding:12px 18px;border-bottom:1px solid var(--s1);font-size:10px;font-weight:700;color:var(--s4);text-transform:uppercase;letter-spacing:.8px;background:var(--s05)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-wday{text-align:center;font-size:10px;font-weight:700;color:var(--s4);text-transform:uppercase;letter-spacing:.5px;padding:5px 0}
+.cal-day{background:#fff;border:1px solid var(--s2);border-radius:7px;padding:7px;min-height:68px}
+.cal-day.today{border-color:var(--blue);background:var(--blue-l)}
+.cal-dn{font-size:11.5px;font-weight:700;margin-bottom:3px}
+.cal-ev{font-size:9.5px;background:var(--purple-l);color:var(--purple);border-radius:3px;padding:2px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.cal-ev.green{background:var(--green-l);color:var(--green)}
+.log-row{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--s1)}
+.log-row:last-child{border-bottom:none}
+.log-ico{width:27px;height:27px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.log-txt{flex:1;font-size:12px;color:var(--s6)}
+.log-txt strong{color:var(--slate)}
+.log-time{font-size:10.5px;color:var(--s4);white-space:nowrap}
+.notice{background:var(--blue-l);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--blue);margin-bottom:14px;display:flex;align-items:flex-start;gap:8px}
+.rb-row{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid var(--s1)}
+.rb-row:last-child{border-bottom:none}
+.rb-bar{width:90px;height:6px;background:var(--s1);border-radius:3px;overflow:hidden;flex-shrink:0}
+.rb-fill{height:100%;border-radius:3px}
+.rb-cnt{font-size:12px;color:var(--s4);min-width:80px;text-align:center}
+.mt8{margin-top:8px}
+.mb16{margin-bottom:16px}
+.flex-end{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.divider{border:none;border-top:1px solid var(--s1);margin:14px 0}
+.section-title-lg{font-size:15px;font-weight:700;margin-bottom:14px}
+
+/* ── NEW: Offer/Documentation/Joining styles ── */
+.sync-flash{display:none;background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:12px;color:#15803d;margin-bottom:14px;align-items:center;gap:8px;font-weight:500}
+.sync-flash.show{display:flex;animation:fadeInFlash .3s ease}
+@keyframes fadeInFlash{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.mini-btn{padding:3px 10px;font-size:11px;border-radius:6px;border:1px solid var(--s2);background:#fff;cursor:pointer;font-family:var(--font);color:var(--s6);transition:all .15s;white-space:nowrap}
+.mini-btn:hover{border-color:var(--blue);color:var(--blue)}
+.mini-btn.green{border-color:var(--green);color:var(--green);background:var(--green-l)}
+.mini-btn.red{border-color:var(--brand);color:var(--brand)}
+.mini-btn.blue{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.sel-actions{display:flex;flex-direction:column;gap:4px}
+.join-change-notice{background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:7px 10px;font-size:11px;color:#92400e;margin-top:5px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ LOGIN SCREEN ═══════════════════════ -->
+<div id="login-screen">
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-glow2"></div>
+  <div class="particle" style="left:10%;animation-duration:12s;animation-delay:0s"></div>
+  <div class="particle" style="left:25%;animation-duration:15s;animation-delay:3s"></div>
+  <div class="particle" style="left:45%;animation-duration:10s;animation-delay:1.5s"></div>
+  <div class="particle" style="left:65%;animation-duration:18s;animation-delay:5s"></div>
+  <div class="particle" style="left:80%;animation-duration:13s;animation-delay:2s"></div>
+  <div class="particle" style="left:92%;animation-duration:16s;animation-delay:4s"></div>
+
+  <div class="login-wrap">
+    <div class="brand-card">
+      <div class="logo-wrap">
+        <img src="data:image/jpeg;base64,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8888888888888888888841G8888888888dE/888888888L2+888888884pxq8888888885ZCq88888888xKDCq888888885qDCq88888888uqLPs38888888Q+MzAV8888888e9voG988888888sMAE888888888888888888//EACURAQABBAEDBAMBAAAAAAAAAAERACExQWEwUbFxgaHwEECRwf/aAAgBAwEBPxD9SdRJCWwTtb270KAN4N3oo8qdNKVC3YEABh126YZG2QXwd0waywU10E3AzTOVmYtjAWJlSPYWI9Yn36RSsabtw3X8F3QlARoGuEW1/goRCVfJ6LiEN1IwPECS5S73ceq1REL0pe42md8zCsj7XLXy3z0bzyRXDNKmjWjBfAUmMMYYtf1uxa/4L7XLXy3z0EKsoIJXSzYEwKW2aQdaHYiMuxbHD+vtcn4X2uWvlvnoG5GXMzgk9mm3NiK+R/uvtcn4X2uWvlvnoC1pDAu2riLsRfPVPinITZW2RxaLyPAXdGLDLn16CUCBTF4wTmKca2xM3la14KhMPjsyhGJPLTQ8IddRFemECJe76EHCAXkMHAXlT5uwEviRAMask89CCjkBMG5BzBa1FaEJuJYSzm4CWpERINq49Gbt4xbmjSXMTUkbi0KYh9qjeKCSByDI2EoMYTBoAA9gL7z+/wD/xAAnEQEAAQMDAwQDAQEAAAAAAAABEQAhQTFRYTCBoXGRsfBAwfHR4f/aAAgBAgEBPxD8SQhMUojd7eP+1H+EwR5/XTYIW8Cts7DL7XqC1WALh2bRpvrfMr6xL3v0m+BGEzlvY8uhlAvBW3Nb8MGfTUgTSPgdEDKMf2mrBkhIwbsNuN6lLSKmbWeB/pa1fe4K8P4HRiEMUNiSJd+D3tQqVtlrpM8tjBrewVvtcFeH8DoRHvYUMGAbl1Zg7uzN+vg3hYF7p4edPrcNFb7XBXh/A6CoIG5pDJzfXGK8f9a+tw0VvtcFeH8DoMgjLVDBViFms205o9F4I4aMgcyh6JyQwU9skGnodC41pfLR0ZKXfSkZc2jtt71Exwum14btHTExYmwY70RhE/zoQdUjSbUmUolbZzH6o8TGfTarv0N4tZMdqi7hGk2pAJD8/wD/xAAqEAEAAQMEAQMDBAMAAAAAAAABEQAhMUFRYfBAIDCBEHHBkaGx0VBg4f/aAAgBAQABPxD/AENHA2TJwLL8VfScEMuhYPxNLhLSlaXJ48XWBS3Mu5ClhZByVDC0YAwoJfM08z5WRytT9YokCy4fFAXYwQASMNmjwdKCBQ4LEBjDETGBbx8RWFBn3f6f1vilvzXglID7qh805nRbVzf6of1rANgmgudmL4gQUMVgBgAWfsdEgNCOFgDRsXhkZAUgZEWzSDvwDGgip0AlpXfZNc48rQxgSyopptjD/wAc0Q42AgCHik9vLV0DmphJGfHLzTVigQAYew/Oi10CAAgDBXSbPEEzaHfR6g/bLALTl8fxZhbS3zSEkkoaSH8NaBcZBAGg+nSbPCFlgGQQi40wMMDKtik5fMsbobqCVd4ACaebkDwcfb0NHOk2eE4koiy6uZTgcDYoNKFqemk6jRlvY9ABo50mzwWZgMADq7Oq+JUKasiLiXwA/VbsqtCDnJ8c3n+K6Lb0wGjnSbPfHeFjA3E1IEBn35eKnziV0Ivmwb1Cko5GwWG4ljBOWui29MBo50mz30DRIcS6qfLCt1disgVCxeFKA5RIWWfoL0W3pgNHOk2e+gUMGWpmMF9A2P7rpNvrF6Lb0wGjnSbPB+6Tb6xei29MBo50mzwfuk2+sXotvTAaOdJs98+hRzhcwV278UsMU2iSiS8SfrRbX7ivhgtXbvxSEi4DaI4aRjWeTRELjQ6aiyRVSwFLhD0sWAMtdu/FCwc+QWBT3wcbXIhkLllqYlJEvBSxK25o8Q7+ORsEQRa1EIwRAEOggvqhRj7SRuCDbDmp3NMYUVYwRlLMgNAETk4ATEI/AlSnzNnsJEwSRuUDFAtHEBtUIOYVbYLb5owvDiWESyeFTY+xj7hhSBYbSz8VOgG0uBCyov4d6eUhBczD/FXLTShIkCQGy5zUI94QOLBITGDGKCAWNDupYHKzFWxdqxqccQy4N2j3xjnBWxAxuvfSMSfgRZXQUE80hEIhgoZi1E5s1BcTCT9VwDJOKhaI5MTO0DBdM5p5qfYCkYLkYoNlh5kgAN5Jcr3KYWtRADAcGqddKmTIYYgSWYRxSEBFRACuhAo0p4ZDgvIICJnjNSMgMUcbgSjclhPAyLqs+xRijbGgCAKPkIyXaUZblxSReFc8I7BObLZpuSQUWazNop2h5UDlZeiUu0toqEOi9D7wE68ssEAtpS2KvJqjhvZElBkaRJE8JQE2aQtvHcalam9UhHH7BSmRRZJpBYLwUvT8TJbCmxghKJVpOGoZHTqWq4tFinNFpMUJk8/uN4ETKygUIlbpmdwFLAIWYrPhF79S5ZGLbxjvTYvlcjjNtpz2pWd32ELIICSQgreFGBPFGi+GVASUwYiiuIniSSYMMVEWVRSFOcmIIgSSttRnMErEFsrsIiPJG/Ot7BtJVjjU2v8A4H//2Q==" alt="UpGro Media">
+      </div>
+      <div class="brand-sub">Performance &amp; Digital Marketing</div>
+    </div>
+
+    <div class="login-card-l">
+      <div class="lcard-title">Welcome Back 👋</div>
+      <div class="lcard-sub">Sign in to UpGro Media Hiring Portal</div>
+      <div class="lerror-msg" id="lerrorMsg">Invalid email or password. Please try again.</div>
+      <div class="lfield">
+        <label class="lfield-label" for="lemail">Email Address</label>
+        <div class="lfield-wrap">
+          <input class="lfield-input" id="lemail" type="email" placeholder="yourname@upgromedia.com" autocomplete="email">
+        </div>
+      </div>
+      <div class="lfield">
+        <label class="lfield-label" for="lpassword">Password</label>
+        <div class="lfield-wrap">
+          <input class="lfield-input" id="lpassword" type="password" placeholder="Enter your password" autocomplete="current-password">
+          <button class="eye-btn" type="button" onclick="togglePass()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" id="eyeIcon">
+              <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3" fill="none"/>
+              <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3" fill="none"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="signin-btn" id="signinBtn" onclick="handleLogin()">Sign In &nbsp;→</button>
+    </div>
+    <div class="login-footer">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Secure · UpGro Media Hiring Portal v5.1
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PORTAL SCREEN ═══════════════════════ -->
+<div id="portal-screen" style="display:none;width:100%;height:100vh;overflow:hidden;flex-direction:row">
+
+<!-- ══════ SIDEBAR ══════ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-mark" style="padding:2px;overflow:hidden"><img src="data:image/jpeg;base64,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8888888888888888888841G8888888888dE/888888888L2+888888884pxq8888888885ZCq88888888xKDCq888888885qDCq88888888uqLPs38888888Q+MzAV8888888e9voG988888888sMAE888888888888888888//EACURAQABBAEDBAMBAAAAAAAAAAERACExQWEwUbFxgaHwEECRwf/aAAgBAwEBPxD9SdRJCWwTtb270KAN4N3oo8qdNKVC3YEABh126YZG2QXwd0waywU10E3AzTOVmYtjAWJlSPYWI9Yn36RSsabtw3X8F3QlARoGuEW1/goRCVfJ6LiEN1IwPECS5S73ceq1REL0pe42md8zCsj7XLXy3z0bzyRXDNKmjWjBfAUmMMYYtf1uxa/4L7XLXy3z0EKsoIJXSzYEwKW2aQdaHYiMuxbHD+vtcn4X2uWvlvnoG5GXMzgk9mm3NiK+R/uvtcn4X2uWvlvnoC1pDAu2riLsRfPVPinITZW2RxaLyPAXdGLDLn16CUCBTF4wTmKca2xM3la14KhMPjsyhGJPLTQ8IddRFemECJe76EHCAXkMHAXlT5uwEviRAMask89CCjkBMG5BzBa1FaEJuJYSzm4CWpERINq49Gbt4xbmjSXMTUkbi0KYh9qjeKCSByDI2EoMYTBoAA9gL7z+/wD/xAAnEQEAAQMDAwQDAQEAAAAAAAABEQAhQTFRYTCBoXGRsfBAwfHR4f/aAAgBAgEBPxD8SQhMUojd7eP+1H+EwR5/XTYIW8Cts7DL7XqC1WALh2bRpvrfMr6xL3v0m+BGEzlvY8uhlAvBW3Nb8MGfTUgTSPgdEDKMf2mrBkhIwbsNuN6lLSKmbWeB/pa1fe4K8P4HRiEMUNiSJd+D3tQqVtlrpM8tjBrewVvtcFeH8DoRHvYUMGAbl1Zg7uzN+vg3hYF7p4edPrcNFb7XBXh/A6CoIG5pDJzfXGK8f9a+tw0VvtcFeH8DoMgjLVDBViFms205o9F4I4aMgcyh6JyQwU9skGnodC41pfLR0ZKXfSkZc2jtt71Exwum14btHTExYmwY70RhE/zoQdUjSbUmUolbZzH6o8TGfTarv0N4tZMdqi7hGk2pAJD8/wD/xAAqEAEAAQMEAQMDBAMAAAAAAAABEQAhMUFRYfBAIDCBEHHBkaGx0VBg4f/aAAgBAQABPxD/AENHA2TJwLL8VfScEMuhYPxNLhLSlaXJ48XWBS3Mu5ClhZByVDC0YAwoJfM08z5WRytT9YokCy4fFAXYwQASMNmjwdKCBQ4LEBjDETGBbx8RWFBn3f6f1vilvzXglID7qh805nRbVzf6of1rANgmgudmL4gQUMVgBgAWfsdEgNCOFgDRsXhkZAUgZEWzSDvwDGgip0AlpXfZNc48rQxgSyopptjD/wAc0Q42AgCHik9vLV0DmphJGfHLzTVigQAYew/Oi10CAAgDBXSbPEEzaHfR6g/bLALTl8fxZhbS3zSEkkoaSH8NaBcZBAGg+nSbPCFlgGQQi40wMMDKtik5fMsbobqCVd4ACaebkDwcfb0NHOk2eE4koiy6uZTgcDYoNKFqemk6jRlvY9ABo50mzwWZgMADq7Oq+JUKasiLiXwA/VbsqtCDnJ8c3n+K6Lb0wGjnSbPfHeFjA3E1IEBn35eKnziV0Ivmwb1Cko5GwWG4ljBOWui29MBo50mz30DRIcS6qfLCt1disgVCxeFKA5RIWWfoL0W3pgNHOk2e+gUMGWpmMF9A2P7rpNvrF6Lb0wGjnSbPB+6Tb6xei29MBo50mzwfuk2+sXotvTAaOdJs98+hRzhcwV278UsMU2iSiS8SfrRbX7ivhgtXbvxSEi4DaI4aRjWeTRELjQ6aiyRVSwFLhD0sWAMtdu/FCwc+QWBT3wcbXIhkLllqYlJEvBSxK25o8Q7+ORsEQRa1EIwRAEOggvqhRj7SRuCDbDmp3NMYUVYwRlLMgNAETk4ATEI/AlSnzNnsJEwSRuUDFAtHEBtUIOYVbYLb5owvDiWESyeFTY+xj7hhSBYbSz8VOgG0uBCyov4d6eUhBczD/FXLTShIkCQGy5zUI94QOLBITGDGKCAWNDupYHKzFWxdqxqccQy4N2j3xjnBWxAxuvfSMSfgRZXQUE80hEIhgoZi1E5s1BcTCT9VwDJOKhaI5MTO0DBdM5p5qfYCkYLkYoNlh5kgAN5Jcr3KYWtRADAcGqddKmTIYYgSWYRxSEBFRACuhAo0p4ZDgvIICJnjNSMgMUcbgSjclhPAyLqs+xRijbGgCAKPkIyXaUZblxSReFc8I7BObLZpuSQUWazNop2h5UDlZeiUu0toqEOi9D7wE68ssEAtpS2KvJqjhvZElBkaRJE8JQE2aQtvHcalam9UhHH7BSmRRZJpBYLwUvT8TJbCmxghKJVpOGoZHTqWq4tFinNFpMUJk8/uN4ETKygUIlbpmdwFLAIWYrPhF79S5ZGLbxjvTYvlcjjNtpz2pWd32ELIICSQgreFGBPFGi+GVASUwYiiuIniSSYMMVEWVRSFOcmIIgSSttRnMErEFsrsIiPJG/Ot7BtJVjjU2v8A4H//2Q==" style="width:100%;height:100%;object-fit:contain;border-radius:7px" alt="UpGro"></div>
+    <div>
+      <div class="sb-logo-text">UpGro Media</div>
+      <div class="sb-logo-sub">Hiring Portal</div>
+    </div>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Main</div>
+    <div class="nav active" onclick="goTo('dashboard',this)">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".3"/></svg>
+      Dashboard
+    </div>
+    <div class="nav" onclick="goTo('candidates',this)">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" fill="currentColor"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      All Candidates<span class="nb">47</span>
+    </div>
+    <div class="nav" onclick="goTo('interviews',this)">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 1v4M11 1v4M1 7h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Interview Schedule<span class="nb">8</span>
+    </div>
+    <div class="nav" onclick="goTo('calendar',this)">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="5" cy="10" r="1.2" fill="currentColor"/><circle cx="8" cy="10" r="1.2" fill="currentColor" opacity=".5"/><circle cx="11" cy="10" r="1.2" fill="currentColor" opacity=".5"/><rect x="1" y="3" width="14" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.2"/></svg>
+      Calendar View
+    </div>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Pipeline</div>
+    <div class="nav" onclick="goTo('shortlisted',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.4l-3.7 1.9.7-4.1L2 5.3l4.2-.7z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+      Shortlisted<span class="nb">12</span>
+    </div>
+    <div class="nav" onclick="goTo('selected',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Selected<span class="nb">4</span>
+    </div>
+    <div class="nav" onclick="goTo('rejected',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Rejected<span class="nb">9</span>
+    </div>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">System</div>
+    <div class="nav" onclick="goTo('sheets',this)">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M1 5h14M5 5v10" stroke="currentColor" stroke-width="1.2"/></svg>
+      Google Sheets<span class="nb">7</span>
+    </div>
+    <div class="nav" onclick="goTo('emails',this)">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M1 5l7 4.5L15 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Email Templates
+    </div>
+    <div class="nav" onclick="goTo('reports',this)">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 12V6M6 12V4M9 12V8M12 12V3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Reports &amp; Export
+    </div>
+    <div class="nav" onclick="goTo('users',this)">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M1 13c0-2.76 2.24-5 5-5M11 10v4M13 12h-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Users &amp; Roles
+    </div>
+    <div class="nav" onclick="goTo('settings',this)">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Settings
+    </div>
+  </div>
+  <div class="sb-bot">
+    <div class="user-row" onclick="doLogout()">
+      <div class="ava" style="background:var(--brand-l);color:var(--brand)" id="sb-ava">IN</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sb-name">Info Admin</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.3)">Sign Out</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="tb">
+    <div class="tb-left">
+      <div class="tb-title" id="tb-title">Dashboard</div>
+      <div class="tb-sub" id="tb-sub">UpGro Media Hiring Portal · April 2026</div>
+    </div>
+    <div class="tb-right">
+      <div class="notif-wrap"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a5 5 0 00-5 5v3l-1.5 2h13L13 9V6a5 5 0 00-5-5zM6.5 14a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg><div class="nd"></div></div>
+      <div class="tb-ava" id="tb-ava">IN</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ════ DASHBOARD ════ -->
+    <div id="page-dashboard" class="page active">
+      <div class="sg4">
+        <div class="sc"><div class="sc-accent" style="background:var(--blue)"></div><div class="sc-label">Total Candidates</div><div class="sc-val">47</div><div class="sc-trend t-up">↑ 12 this week</div></div>
+        <div class="sc"><div class="sc-accent" style="background:var(--purple)"></div><div class="sc-label">Interviews Today</div><div class="sc-val">4</div><div class="sc-trend t-up">Apr 3, 2026</div></div>
+        <div class="sc"><div class="sc-accent" style="background:var(--green)"></div><div class="sc-label">Selected</div><div class="sc-val">4</div><div class="sc-trend t-up">↑ 2 offers sent this month</div></div>
+        <div class="sc"><div class="sc-accent" style="background:var(--brand)"></div><div class="sc-label">Rejected</div><div class="sc-val">9</div><div class="sc-trend t-down">↓ Rejection emails sent</div></div>
+      </div>
+      <div class="sg2">
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Hiring Pipeline</span><span class="card-act" onclick="goTo('candidates',null)">View all →</span></div>
+          <div class="pipe">
+            <div class="pipe-row"><div class="pipe-dot" style="background:var(--blue)"></div><div class="pipe-name">New Applications</div><div class="pipe-bw"><div class="pipe-b" style="width:30%;background:var(--blue)"></div></div><div class="pipe-n">14</div></div>
+            <div class="pipe-row"><div class="pipe-dot" style="background:var(--purple)"></div><div class="pipe-name">Interview Scheduled</div><div class="pipe-bw"><div class="pipe-b" style="width:17%;background:var(--purple)"></div></div><div class="pipe-n">8</div></div>
+            <div class="pipe-row"><div class="pipe-dot" style="background:var(--amber)"></div><div class="pipe-name">Shortlisted</div><div class="pipe-bw"><div class="pipe-b" style="width:26%;background:var(--amber)"></div></div><div class="pipe-n">12</div></div>
+            <div class="pipe-row"><div class="pipe-dot" style="background:var(--green)"></div><div class="pipe-name">Selected</div><div class="pipe-bw"><div class="pipe-b" style="width:9%;background:var(--green)"></div></div><div class="pipe-n">4</div></div>
+            <div class="pipe-row"><div class="pipe-dot" style="background:var(--brand)"></div><div class="pipe-name">Rejected</div><div class="pipe-bw"><div class="pipe-b" style="width:19%;background:var(--brand)"></div></div><div class="pipe-n">9</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-hd"><span class="card-title">Today's Interviews</span><span class="card-act" onclick="goTo('interviews',null)">View schedule →</span></div>
+            <div style="padding:10px 14px">
+              <div class="iv" onclick="goTo('detail',null)" style="margin-bottom:6px"><div class="iv-time"><div class="iv-tv">10:00</div><div class="iv-tl">AM · 45min</div></div><div class="iv-div"></div><div class="iv-info"><div class="iv-name">Priya Sharma</div><div class="iv-role">Graphic Designer · Dhiraj Sir</div></div><button class="meet-btn">📹 Meet</button></div>
+              <div class="iv" style="margin-bottom:0"><div class="iv-time"><div class="iv-tv">12:30</div><div class="iv-tl">PM · 30min</div></div><div class="iv-div"></div><div class="iv-info"><div class="iv-name">Rahul Mehta</div><div class="iv-role">Video Editor · Ritu Ma'am</div></div><button class="meet-btn">📹 Meet</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><span class="card-title">Recent Applications</span><span class="card-act" onclick="goTo('candidates',null)">See all 47 →</span></div>
+            <div class="tbl-wrap"><table>
+              <thead><tr><th>Candidate</th><th>Role</th><th>Source</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr onclick="goTo('detail',null)"><td><div class="td-name">Priya Sharma</div><div class="td-email">priya.sharma@gmail.com</div></td><td><span class="rp rp-gd">Graphic Designer</span></td><td><span class="src-tag">Sheet-1</span></td><td>Apr 3</td><td><span class="badge b-sch">Interview Scheduled</span></td><td><button class="btn btn-g btn-sm" onclick="event.stopPropagation();goTo('detail',null)">View</button></td></tr>
+                <tr><td><div class="td-name">Rohit Verma</div><div class="td-email">rohit.v@gmail.com</div></td><td><span class="rp rp-ve">Video Editor</span></td><td><span class="src-tag">Sheet-2</span></td><td>Apr 3</td><td><span class="badge b-new">New Application</span></td><td><button class="btn btn-g btn-sm">View</button></td></tr>
+                <tr><td><div class="td-name">Sneha Patel</div><div class="td-email">sneha.p@gmail.com</div></td><td><span class="rp rp-cw">Content Writer</span></td><td><span class="src-tag">Sheet-3</span></td><td>Apr 2</td><td><span class="badge b-inc">Profile Incomplete</span></td><td><button class="btn btn-g btn-sm">View</button></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ ALL CANDIDATES ════ -->
+    <div id="page-candidates" class="page">
+      <div class="card">
+        <div class="filter-bar">
+          <div class="srch">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="var(--s4)" stroke-width="1.4"/><path d="M9.5 9.5L12.5 12.5" stroke="var(--s4)" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <input type="text" id="cand-search" placeholder="Search name, email, phone, role…">
+          </div>
+          <select class="fsel"><option>All Roles</option><option>Graphic Designer</option><option>Video Editor</option><option>Content Writer</option><option>Social Media Exec</option></select>
+          <select class="fsel" id="cand-status"><option value="">All Statuses</option><option value="new">New Application</option><option value="sch">Interview Scheduled</option><option value="shl">Shortlisted</option><option value="rej">Rejected</option><option value="sel">Selected</option></select>
+          <select class="fsel"><option>All Sources</option><option>Sheet 1</option><option>Sheet 2</option><option>Sheet 3</option></select>
+          <input type="date" class="fsel" value="2026-04-01">
+          <button class="btn btn-g btn-sm">↓ Export CSV</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Candidate</th><th>Role</th><th>Source / Tab</th><th>Applied</th><th>Exp.</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="cand-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ CANDIDATE DETAIL ════ -->
+    <div id="page-detail" class="page">
+      <div class="prof-hd">
+        <div class="prof-ava" style="background:var(--blue-l);color:var(--blue)">PS</div>
+        <div style="flex:1;min-width:0">
+          <div class="prof-name">Priya Sharma</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="rp rp-gd">Graphic Designer</span>
+            <span class="badge b-sch">Interview Scheduled</span>
+            <span class="src-tag">Hiring Master Sheet 1 · GD Tab</span>
+          </div>
+          <div class="prof-meta">
+            <span class="prof-mi">✉ priya.sharma@gmail.com</span>
+            <span class="prof-mi">📞 +91 98765 43210</span>
+            <span class="prof-mi">📍 Lucknow, UP</span>
+            <span class="prof-mi">Applied: Apr 3, 2026</span>
+          </div>
+        </div>
+        <div class="prof-acts">
+          <button class="btn btn-g btn-sm" onclick="openModal('mo-sched')">📅 Schedule</button>
+          <button class="btn btn-g btn-sm" style="color:var(--amber);border-color:var(--amber)">⭐ Shortlist</button>
+          <button class="btn btn-g btn-sm" style="color:var(--green);border-color:var(--green)">✓ Select</button>
+          <button class="btn btn-g btn-sm" style="color:var(--brand);border-color:var(--brand)">✕ Reject</button>
+        </div>
+      </div>
+      <div class="info3">
+        <div class="icard">
+          <div class="icard-t">Personal Info</div>
+          <div class="irow"><span class="ik">Full Name</span><span class="iv2">Priya Sharma</span></div>
+          <div class="irow"><span class="ik">Email</span><span class="iv2">priya.sharma@gmail.com</span></div>
+          <div class="irow"><span class="ik">Phone</span><span class="iv2">+91 98765 43210</span></div>
+          <div class="irow"><span class="ik">Location</span><span class="iv2">Lucknow, UP</span></div>
+          <div class="irow"><span class="ik">Education</span><span class="iv2">B.Des, NIFT</span></div>
+        </div>
+        <div class="icard">
+          <div class="icard-t">Professional</div>
+          <div class="irow"><span class="ik">Experience</span><span class="iv2">2.5 years</span></div>
+          <div class="irow"><span class="ik">Current CTC</span><span class="iv2">₹22,000/mo</span></div>
+          <div class="irow"><span class="ik">Expected CTC</span><span class="iv2">₹28,000/mo</span></div>
+          <div class="irow"><span class="ik">Notice Period</span><span class="iv2">15 days</span></div>
+          <div class="irow"><span class="ik">Portfolio</span><span class="iv2" style="color:var(--blue);cursor:pointer">View ↗</span></div>
+        </div>
+        <div class="icard">
+          <div class="icard-t">Interview Details</div>
+          <div class="irow"><span class="ik">Date</span><span class="iv2">Apr 3, 2026</span></div>
+          <div class="irow"><span class="ik">Time</span><span class="iv2">10:00 AM</span></div>
+          <div class="irow"><span class="ik">Duration</span><span class="iv2">45 minutes</span></div>
+          <div class="irow"><span class="ik">Interviewer</span><span class="iv2">Dhiraj Sir (CEO)</span></div>
+          <div class="irow"><span class="ik">Meet Link</span><span class="iv2" style="color:var(--blue);cursor:pointer">Join ↗</span></div>
+        </div>
+      </div>
+      <div class="sg2" style="margin-bottom:0">
+        <div class="icard">
+          <div class="icard-t">Internal Notes</div>
+          <p style="font-size:12.5px;color:var(--s6);line-height:1.7;margin-bottom:10px">Strong portfolio with brand identity work. Experience with Adobe suite. Good communication.</p>
+          <textarea class="fta" placeholder="Add internal note…" style="min-height:55px;font-size:12px"></textarea>
+          <button class="btn btn-p btn-sm mt8">Save Note</button>
+        </div>
+        <div class="icard">
+          <div class="icard-t">Activity Timeline</div>
+          <ul class="tl">
+            <li class="tl-i"><div class="tl-d blue"></div><div class="tl-time">Apr 3, 2026 · 9:15 AM</div><div class="tl-txt"><strong>Interview scheduled</strong> for 10:00 AM. Meet link shared via email.</div></li>
+            <li class="tl-i"><div class="tl-d amber"></div><div class="tl-time">Apr 2, 2026 · 4:30 PM</div><div class="tl-txt"><strong>Profile update requested</strong> — resume and portfolio link missing.</div></li>
+            <li class="tl-i"><div class="tl-d green"></div><div class="tl-time">Apr 2, 2026 · 2:10 PM</div><div class="tl-txt"><strong>Profile updated</strong> by candidate via secure link.</div></li>
+            <li class="tl-i"><div class="tl-d"></div><div class="tl-time">Apr 1, 2026 · 11:05 AM</div><div class="tl-txt"><strong>Application received</strong> from Hiring Master Sheet 1 · Tab: Graphic Designer</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ INTERVIEWS ════ -->
+    <div id="page-interviews" class="page">
+      <div class="sg3">
+        <div class="sc"><div class="sc-accent" style="background:var(--purple)"></div><div class="sc-label">Today</div><div class="sc-val">4</div><div class="sc-trend t-up">Apr 3, 2026</div></div>
+        <div class="sc"><div class="sc-accent" style="background:var(--blue)"></div><div class="sc-label">Tomorrow</div><div class="sc-val">3</div><div class="sc-trend t-up">Apr 4, 2026</div></div>
+        <div class="sc"><div class="sc-accent" style="background:var(--green)"></div><div class="sc-label">This Week</div><div class="sc-val">8</div><div class="sc-trend t-up">All scheduled</div></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700">Apr 3, 2026 — Today</div>
+        <button class="btn btn-p btn-sm" onclick="openModal('mo-sched')">+ Schedule New</button>
+      </div>
+      <div class="iv" onclick="goTo('detail',null)"><div class="iv-time"><div class="iv-tv">10:00</div><div class="iv-tl">AM · 45min</div></div><div class="iv-div"></div><div class="iv-info"><div class="iv-name">Priya Sharma</div><div class="iv-role">Graphic Designer · Interviewer: Dhiraj Sir</div></div><button class="meet-btn">📹 Meet</button><span class="badge b-sch" style="flex-shrink:0">Scheduled</span></div>
+      <div class="iv"><div class="iv-time"><div class="iv-tv">12:30</div><div class="iv-tl">PM · 30min</div></div><div class="iv-div"></div><div class="iv-info"><div class="iv-name">Rahul Mehta</div><div class="iv-role">Video Editor · Interviewer: Ritu Ma'am</div></div><button class="meet-btn">📹 Meet</button><span class="badge b-sch" style="flex-shrink:0">Scheduled</span></div>
+      <div class="iv"><div class="iv-time"><div class="iv-tv">3:00</div><div class="iv-tl">PM · 30min</div></div><div class="iv-div"></div><div class="iv-info"><div class="iv-name">Ananya Gupta</div><div class="iv-role">Content Writer · Interviewer: Ritu Ma'am</div></div><button class="meet-btn">📹 Meet</button><span class="badge b-sch" style="flex-shrink:0">Scheduled</span></div>
+      <div class="iv"><div class="iv-time"><div class="iv-tv">5:00</div><div class="iv-tl">PM · 45min</div></div><div class="iv-div"></div><div class="iv-info"><div class="iv-name">Karan Singh</div><div class="iv-role">Social Media Exec · Interviewer: Dhiraj Sir</div></div><button class="meet-btn">📹 Meet</button><span class="badge b-new" style="flex-shrink:0">Reminder Pending</span></div>
+      <div style="font-size:13px;font-weight:700;margin:16px 0 12px">Apr 4, 2026 — Tomorrow</div>
+      <div class="iv"><div class="iv-time"><div class="iv-tv">11:00</div><div class="iv-tl">AM · 30min</div></div><div class="iv-div"></div><div class="iv-info"><div class="iv-name">Divya Nair</div><div class="iv-role">Graphic Designer · Interviewer: Dhiraj Sir</div></div><button class="meet-btn">📹 Meet</button><span class="badge b-sch" style="flex-shrink:0">Scheduled</span></div>
+      <div class="iv"><div class="iv-time"><div class="iv-tv">2:00</div><div class="iv-tl">PM · 45min</div></div><div class="iv-div"></div><div class="iv-info"><div class="iv-name">Suresh Kumar</div><div class="iv-role">Video Editor · Interviewer: Ritu Ma'am</div></div><button class="meet-btn">📹 Meet</button><span class="badge b-sch" style="flex-shrink:0">Scheduled</span></div>
+    </div>
+
+    <!-- ════ CALENDAR ════ -->
+    <div id="page-calendar" class="page">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:16px;font-weight:700">April 2026</div>
+        <div style="display:flex;gap:8px"><button class="btn btn-g btn-sm">← Prev</button><button class="btn btn-g btn-sm">Next →</button></div>
+      </div>
+      <div class="cal-grid" style="margin-bottom:5px">
+        <div class="cal-wday">Mon</div><div class="cal-wday">Tue</div><div class="cal-wday">Wed</div><div class="cal-wday">Thu</div><div class="cal-wday">Fri</div><div class="cal-wday">Sat</div><div class="cal-wday">Sun</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <!-- ════ SHORTLISTED ════ -->
+    <div id="page-shortlisted" class="page">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Shortlisted Candidates (12)</span><button class="btn btn-g btn-sm">↓ Export CSV</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Candidate</th><th>Role</th><th>Experience</th><th>Expected CTC</th><th>Interview Date</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><div class="td-name">Amit Joshi</div><div class="td-email">amit.j@gmail.com</div></td><td><span class="rp rp-gd">Graphic Designer</span></td><td>3 yrs</td><td>₹30,000</td><td>Apr 2, 2026</td><td style="display:flex;gap:6px;padding:11px 15px"><button class="btn btn-p btn-sm">✓ Select</button><button class="btn btn-g btn-sm" style="color:var(--brand)">✕ Reject</button></td></tr>
+            <tr><td><div class="td-name">Divya Nair</div><div class="td-email">divya.n@gmail.com</div></td><td><span class="rp rp-gd">Graphic Designer</span></td><td>2 yrs</td><td>₹26,000</td><td>Apr 4, 2026</td><td style="display:flex;gap:6px;padding:11px 15px"><button class="btn btn-p btn-sm">✓ Select</button><button class="btn btn-g btn-sm" style="color:var(--brand)">✕ Reject</button></td></tr>
+            <tr><td><div class="td-name">Vivek Sharma</div><div class="td-email">vivek.s@gmail.com</div></td><td><span class="rp rp-ve">Video Editor</span></td><td>5 yrs</td><td>₹25,000</td><td>Apr 1, 2026</td><td style="display:flex;gap:6px;padding:11px 15px"><button class="btn btn-p btn-sm">✓ Select</button><button class="btn btn-g btn-sm" style="color:var(--brand)">✕ Reject</button></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ════ SELECTED ════ (NEW FULL-FEATURED VERSION) -->
+    <div id="page-selected" class="page">
+      <div class="notice">ℹ CEO (Dhiraj Sir) final salary enter karein. Offer letter, documentation aur joining date tracking neeche hai. Har update automatically Google Sheet mein sync hoti hai.</div>
+      <div id="sync-flash" class="sync-flash"></div>
+      <div class="card" style="overflow:visible">
+        <div class="card-hd">
+          <span class="card-title">Selected Candidates (<span id="sel-count">4</span>)</span>
+          <button class="btn btn-g btn-sm">↓ Export CSV</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Candidate</th>
+                <th>Role</th>
+                <th>Final Salary</th>
+                <th>Offer Letter</th>
+                <th>Offer Response</th>
+                <th>Documentation</th>
+                <th>Joining Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sel-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ REJECTED ════ -->
+    <div id="page-rejected" class="page">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Rejected Candidates (9)</span><button class="btn btn-g btn-sm">↓ Export CSV</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Candidate</th><th>Role</th><th>Rejection Date</th><th>Rejection Email</th><th>Reapply After</th></tr></thead>
+          <tbody>
+            <tr><td><div class="td-name">Meena Rao</div><div class="td-email">meena.rao@gmail.com</div></td><td><span class="rp rp-sm">Social Media Exec</span></td><td>Apr 1, 2026</td><td><span class="badge b-com">✓ Sent</span></td><td>Oct 1, 2026</td></tr>
+            <tr><td><div class="td-name">Tarun Kapoor</div><div class="td-email">tarun.k@gmail.com</div></td><td><span class="rp rp-gd">Graphic Designer</span></td><td>Apr 2, 2026</td><td><span class="badge b-com">✓ Sent</span></td><td>Oct 2, 2026</td></tr>
+            <tr><td><div class="td-name">Sunita Mishra</div><div class="td-email">sunita.m@gmail.com</div></td><td><span class="rp rp-ve">Video Editor</span></td><td>Apr 2, 2026</td><td><span class="badge b-com">✓ Sent</span></td><td>Oct 2, 2026</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ════ CONNECTED SHEETS ════ -->
+    <div id="page-sheets" class="page">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:600">7 sheets connected · Last sync: 2 min ago</div>
+          <div style="font-size:12px;color:var(--s4);margin-top:2px">Fetching all tabs · Data from 01/04/2026 onward only</div>
+        </div>
+        <button class="btn btn-p btn-sm" onclick="openModal('mo-sheet')">+ Add New Sheet</button>
+      </div>
+      <div class="sheet-c"><div class="sheet-ico">📊</div><div style="flex:1;min-width:0"><div class="sheet-name">Hiring Master Sheet 1 <span class="badge b-com" style="vertical-align:middle;margin-left:6px">Active</span></div><div class="sheet-url">1QPlXFIu-sS4Zf9oCQct3D-k9wHVuBm44kYEFkNQdU-4 · Tabs: gid=654681231, gid=1634672422, gid=1252385445</div><div class="sheet-stats"><span class="sheet-stat">Tabs: <span>3 active</span></span><span class="sheet-stat">Candidates: <span>18</span></span><span class="sheet-stat">Roles: <span>Graphic Designer, Content Writer</span></span><span class="sheet-stat">Last sync: <span>2 min ago</span></span></div></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="btn btn-g btn-sm">🔄 Sync</button><button class="btn btn-g btn-sm">⚙ Config</button></div></div>
+      <div class="sheet-c"><div class="sheet-ico">📊</div><div style="flex:1;min-width:0"><div class="sheet-name">Hiring Master Sheet 2 <span class="badge b-com" style="vertical-align:middle;margin-left:6px">Active</span></div><div class="sheet-url">1UnZ0MUd_D1raRhbVB7eRY4HLNsqzc5Zgr9gUi2fBJXE · Tabs: gid=2065585855, gid=2101339721, gid=1903740924</div><div class="sheet-stats"><span class="sheet-stat">Tabs: <span>3 active</span></span><span class="sheet-stat">Candidates: <span>22</span></span><span class="sheet-stat">Roles: <span>Video Editor, Social Media Exec</span></span><span class="sheet-stat">Last sync: <span>2 min ago</span></span></div></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="btn btn-g btn-sm">🔄 Sync</button><button class="btn btn-g btn-sm">⚙ Config</button></div></div>
+      <div style="margin-top:20px;margin-bottom:12px;font-size:13px;font-weight:700">Column Mapping — Offer &amp; Joining Columns</div>
+      <div class="card">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Sheet Column Header</th><th>Maps To (Standard Field)</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><span class="src-tag">Full Name</span></td><td>candidate_name</td><td><span class="badge b-com">Mapped</span></td></tr>
+            <tr><td><span class="src-tag">Offer Letter Sent</span></td><td>offer_sent</td><td><span class="badge b-com">Mapped</span></td></tr>
+            <tr><td><span class="src-tag">Offer Accepted</span></td><td>offer_accepted</td><td><span class="badge b-com">Mapped</span></td></tr>
+            <tr><td><span class="src-tag">Documentation Done</span></td><td>documentation_complete</td><td><span class="badge b-com">Mapped</span></td></tr>
+            <tr><td><span class="src-tag">Joining Date</span></td><td>joining_date</td><td><span class="badge b-com">Mapped</span></td></tr>
+            <tr><td><span class="src-tag">Joining Change Reason</span></td><td>joining_change_reason</td><td><span class="badge b-com">Mapped</span></td></tr>
+            <tr><td><span class="src-tag">Final Salary</span></td><td>final_salary</td><td><span class="badge b-com">Mapped</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ════ EMAIL TEMPLATES ════ -->
+    <div id="page-emails" class="page">
+      <div class="sg2" style="margin-bottom:0">
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">All Email Templates</div>
+          <div class="ep"><div class="ep-hd"><span class="ep-subj">Interview Scheduled for {{job_role}} at UpGro Media</span><span class="badge b-sch">Interview</span></div><div class="ep-body">Dear {{candidate_name}}, we are pleased to inform you that your interview for <strong>{{job_role}}</strong> has been scheduled for <strong>{{date}}</strong> at <strong>{{time}}</strong> via Google Meet…</div></div>
+          <div class="ep"><div class="ep-hd"><span class="ep-subj">Reminder: Your Interview Starts in 30 Minutes</span><span class="badge b-new">Reminder</span></div><div class="ep-body">Hi {{candidate_name}}, your interview for <strong>{{job_role}}</strong> starts in 30 minutes. Please click the Meet link: {{meet_link}}. Ensure camera and mic are working…</div></div>
+          <div class="ep"><div class="ep-hd"><span class="ep-subj">Regarding Your Application to UpGro Media</span><span class="badge b-rej">Rejection</span></div><div class="ep-body">Dear {{candidate_name}}, thank you for your interest in UpGro Media. After careful review, we regret to inform you that we will not be moving forward. You may reapply after 6 months…</div></div>
+          <div class="ep"><div class="ep-hd"><span class="ep-subj">Congratulations! You've Been Selected at UpGro Media</span><span class="badge b-sel">Selected</span></div><div class="ep-body">Dear {{candidate_name}}, we are thrilled to inform you that you have been selected for the role of <strong>{{final_role}}</strong> at UpGro Media. Your offer letter is attached. Please confirm your acceptance…</div></div>
+          <div class="ep"><div class="ep-hd"><span class="ep-subj">Offer Letter — Please Confirm Acceptance</span><span class="badge b-fin">Offer</span></div><div class="ep-body">Dear {{candidate_name}}, please find your offer letter attached. Kindly confirm your acceptance by replying to this email and share your joining date confirmation. Your joining date is <strong>{{joining_date}}</strong>…</div></div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">Recent Email Log</div>
+          <div class="card">
+            <div style="padding:12px 16px">
+              <div class="log-row"><div class="log-ico" style="background:var(--purple-l);color:var(--purple)">📅</div><div class="log-txt"><strong>Interview Scheduled</strong> → Priya Sharma</div><div class="log-time">Today 9:15</div></div>
+              <div class="log-row"><div class="log-ico" style="background:var(--green-l);color:var(--green)">✓</div><div class="log-txt"><strong>Selected Email</strong> → Neha Agrawal</div><div class="log-time">Apr 1 4:30</div></div>
+              <div class="log-row"><div class="log-ico" style="background:var(--brand-l);color:var(--brand)">✕</div><div class="log-txt"><strong>Rejection Email</strong> → Meena Rao</div><div class="log-time">Apr 1 5:00</div></div>
+              <div class="log-row"><div class="log-ico" style="background:var(--blue-l);color:var(--blue)">📄</div><div class="log-txt"><strong>Offer Letter Sent</strong> → Neha Agrawal</div><div class="log-time">Apr 1 4:35</div></div>
+              <div class="log-row"><div class="log-ico" style="background:var(--teal-l);color:var(--teal)">📎</div><div class="log-txt"><strong>Offer Accepted</strong> → Vivek Sharma</div><div class="log-time">Apr 2 10:15</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ REPORTS ════ -->
+    <div id="page-reports" class="page">
+      <div class="frow mb16">
+        <div class="fg"><label class="fl">From Date</label><input type="date" class="fi" value="2026-04-01"></div>
+        <div class="fg"><label class="fl">To Date</label><input type="date" class="fi" value="2026-04-30"></div>
+      </div>
+      <div class="exp-opt"><div class="exp-ico" style="background:var(--blue-l)">📋</div><div><div style="font-weight:600;font-size:13px">All Candidates CSV</div><div style="font-size:12px;color:var(--s4)">All 47 candidates with full profile · Apr 2026</div></div><button class="btn btn-p btn-sm" style="margin-left:auto">↓ Export</button></div>
+      <div class="exp-opt"><div class="exp-ico" style="background:var(--green-l)">✓</div><div><div style="font-weight:600;font-size:13px">Selected + Offer Status Report</div><div style="font-size:12px;color:var(--s4)">4 selected with offer letter, acceptance & joining status</div></div><button class="btn btn-p btn-sm" style="margin-left:auto">↓ Export</button></div>
+      <div class="exp-opt"><div class="exp-ico" style="background:var(--purple-l)">📅</div><div><div style="font-weight:600;font-size:13px">Interview Schedule CSV</div><div style="font-size:12px;color:var(--s4)">8 interviews with meet links</div></div><button class="btn btn-p btn-sm" style="margin-left:auto">↓ Export</button></div>
+      <div class="exp-opt"><div class="exp-ico" style="background:var(--brand-l)">✕</div><div><div style="font-weight:600;font-size:13px">Rejected Candidates</div><div style="font-size:12px;color:var(--s4)">9 rejections with dates and email status</div></div><button class="btn btn-p btn-sm" style="margin-left:auto">↓ Export</button></div>
+    </div>
+
+    <!-- ════ USERS ════ -->
+    <div id="page-users" class="page">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">User Accounts &amp; Access Roles</span><button class="btn btn-p btn-sm">+ Add User</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>User</th><th>Email</th><th>Access Role</th><th>Permissions</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:var(--brand-l);color:var(--brand);width:32px;height:32px;border-radius:8px;font-size:11px">DS</div><div class="td-name">Dhiraj Sir</div></div></td><td style="font-size:12px">dhiraj@upgromedia.com</td><td><span class="badge b-sel">CEO</span></td><td style="font-size:12px;color:var(--s6)">Final salary, offer letter, all actions</td><td><span class="badge b-com">Active</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:var(--blue-l);color:var(--blue);width:32px;height:32px;border-radius:8px;font-size:11px">IN</div><div class="td-name">Info Admin</div></div></td><td style="font-size:12px">info@upgromedia.com</td><td><span class="badge b-shl">Admin</span></td><td style="font-size:12px;color:var(--s6)">Full portal access except CEO actions</td><td><span class="badge b-com">Active</span></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:var(--blue-l);color:var(--blue);width:32px;height:32px;border-radius:8px;font-size:11px">RT</div><div class="td-name">Ritu Tyagi</div></div></td><td style="font-size:12px">ritu.tyagi@upgromedia.com</td><td><span class="badge b-shl">Admin</span></td><td style="font-size:12px;color:var(--s6)">Full portal access except CEO actions</td><td><span class="badge b-com">Active</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ════ SETTINGS ════ -->
+    <div id="page-settings" class="page">
+      <div class="set-card">
+        <div class="sec-hd">Email &amp; Automation</div>
+        <div class="set-row"><div><div class="set-key">Primary Sender Email</div><div class="set-desc">info@upgromedia.com</div></div><button class="btn btn-g btn-sm">Edit</button></div>
+        <div class="set-row"><div><div class="set-key">30-min Reminder Automation</div><div class="set-desc">Auto-send reminder email before every interview</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+        <div class="set-row"><div><div class="set-key">Rejection Email Auto-send</div><div class="set-desc">Send rejection email immediately on status change to Rejected</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+        <div class="set-row"><div><div class="set-key">Selected Email Auto-send</div><div class="set-desc">Trigger congratulations email after CEO finalizes salary</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+        <div class="set-row"><div><div class="set-key">Offer Acceptance Tracking</div><div class="set-desc">Track and sync offer letter acceptance status to Google Sheets</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+      </div>
+      <div class="set-card">
+        <div class="sec-hd">Data &amp; Sync Rules</div>
+        <div class="set-row"><div><div class="set-key">Data Start Date</div><div class="set-desc">Only fetch and process records from this date onward</div></div><span style="font-size:13px;font-weight:700;color:var(--blue)">01 Apr 2026</span></div>
+        <div class="set-row"><div><div class="set-key">Auto Sync Interval</div><div class="set-desc">Pull new data from Google Sheets automatically</div></div><select class="fsel"><option>Every 15 minutes</option><option>Every 30 minutes</option><option>Every hour</option></select></div>
+        <div class="set-row"><div><div class="set-key">Duplicate Detection</div><div class="set-desc">Flag duplicates matching by email + phone across all sheets</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+      </div>
+      <div class="set-card">
+        <div class="sec-hd">Branding</div>
+        <div class="set-row"><div><div class="set-key">Company Name</div><div class="set-desc">Used in email templates and portal header</div></div><span style="font-size:13px;font-weight:700">UpGro Media</span></div>
+        <div class="set-row"><div><div class="set-key">Primary Brand Color</div><div class="set-desc">Used for accents and buttons</div></div><input type="color" value="#E8272A" style="border:1px solid var(--s2);border-radius:6px;width:40px;height:28px;cursor:pointer;padding:2px"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══ MODAL: Schedule Interview ══ -->
+<div class="mo" id="mo-sched">
+  <div class="modal-box">
+    <div class="mhd"><div class="mhd-title">📅 Schedule Interview</div><button class="mcl" onclick="closeModal('mo-sched')">✕</button></div>
+    <div class="mbd">
+      <div class="fg"><label class="fl">Candidate</label><select class="fsel-full"><option>Priya Sharma — Graphic Designer</option><option>Rohit Verma — Video Editor</option><option>Sneha Patel — Content Writer</option></select></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Interview Date</label><input type="date" class="fi" value="2026-04-03"></div>
+        <div class="fg"><label class="fl">Interview Time</label><input type="time" class="fi" value="10:00"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Duration</label><select class="fsel-full"><option>30 minutes</option><option selected>45 minutes</option><option>60 minutes</option></select></div>
+        <div class="fg"><label class="fl">Interviewer Name</label><input class="fi" value="Dhiraj Sir (CEO)"></div>
+      </div>
+      <div class="fg"><label class="fl">Google Meet Link</label><input class="fi" placeholder="https://meet.google.com/xxx-xxxx-xxx"></div>
+      <div class="fg"><label class="fl">Internal Remarks</label><textarea class="fta" placeholder="Optional notes for interview team…"></textarea></div>
+      <div class="flex-end">
+        <button class="btn btn-g" onclick="closeModal('mo-sched')">Cancel</button>
+        <button class="btn btn-p" onclick="closeModal('mo-sched')">Schedule &amp; Send Interview Email</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Add Sheet ══ -->
+<div class="mo" id="mo-sheet">
+  <div class="modal-box">
+    <div class="mhd"><div class="mhd-title">📊 Connect New Google Sheet</div><button class="mcl" onclick="closeModal('mo-sheet')">✕</button></div>
+    <div class="mbd">
+      <div class="fg"><label class="fl">Google Sheet URL</label><input class="fi" placeholder="https://docs.google.com/spreadsheets/d/…"></div>
+      <div class="fg"><label class="fl">Source Label</label><input class="fi" placeholder="e.g. Hiring Master Sheet 4"></div>
+      <div class="fg"><label class="fl">Sync Mode</label><select class="fsel-full"><option>All tabs (recommended)</option><option>Select specific tabs</option></select></div>
+      <div class="flex-end">
+        <button class="btn btn-g" onclick="closeModal('mo-sheet')">Cancel</button>
+        <button class="btn btn-p" onclick="closeModal('mo-sheet')">Connect &amp; Start Syncing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: CEO Salary Entry ══ -->
+<div class="mo" id="mo-salary">
+  <div class="modal-box">
+    <div class="mhd"><div class="mhd-title">💰 Enter Final Salary &amp; Role (CEO)</div><button class="mcl" onclick="closeModal('mo-salary')">✕</button></div>
+    <div class="mbd">
+      <div class="fg"><label class="fl">Candidate</label><input class="fi" id="sal-cname" readonly></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Final Monthly Salary (₹)</label><input class="fi" type="number" id="sal-amount" placeholder="e.g. 28000"></div>
+        <div class="fg"><label class="fl">Final Role / Designation</label><input class="fi" id="sal-role" placeholder="e.g. Junior Graphic Designer"></div>
+      </div>
+      <div class="fg"><label class="fl">Joining Date</label><input type="date" class="fi" id="sal-joining" min="2026-04-01"></div>
+      <div class="flex-end">
+        <button class="btn btn-g" onclick="closeModal('mo-salary')">Cancel</button>
+        <button class="btn btn-p" onclick="saveSalary()">✓ Finalize &amp; Send Offer Letter Email</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Offer Details ══ -->
+<div class="mo" id="mo-offer">
+  <div class="modal-box">
+    <div class="mhd"><div class="mhd-title" id="offer-modal-title">📄 Offer Details</div><button class="mcl" onclick="closeModal('mo-offer')">✕</button></div>
+    <div class="mbd" id="offer-modal-body"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Joining Date Change ══ -->
+<div class="mo" id="mo-joining">
+  <div class="modal-box">
+    <div class="mhd"><div class="mhd-title">📅 Joining Date Change</div><button class="mcl" onclick="closeModal('mo-joining')">✕</button></div>
+    <div class="mbd">
+      <div class="notice" style="margin-bottom:14px">⚠ Candidate ki nayi joining date aur reason record karein — ye Google Sheet mein bhi update ho jayega.</div>
+      <div class="fg"><label class="fl">Candidate</label><input class="fi" id="jd-cname" readonly></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Purani Joining Date</label><input class="fi" id="jd-old" readonly></div>
+        <div class="fg"><label class="fl">Nayi Joining Date</label><input type="date" class="fi" id="jd-new"></div>
+      </div>
+      <div class="fg"><label class="fl">Reason</label><textarea class="fta" id="jd-reason" placeholder="e.g. Family function, notice period extend, relocation delay…"></textarea></div>
+      <div class="flex-end">
+        <button class="btn btn-g" onclick="closeModal('mo-joining')">Cancel</button>
+        <button class="btn btn-p" onclick="saveJoiningChange()">✓ Save &amp; Sync to Google Sheet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /portal-screen -->
+
+<script>
+// ════════════════════════ LOGIN LOGIC ════════════════════════
+function togglePass(){
+  const inp=document.getElementById('lpassword');
+  const icon=document.getElementById('eyeIcon');
+  if(inp.type==='password'){
+    inp.type='text';
+    icon.innerHTML='<path d="M3 3l10 10M6.5 6.7a2 2 0 002.8 2.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 8s2.5-5 7-5c1 0 2 .2 2.8.6M13.4 5.6C14.5 6.5 15 8 15 8s-2.5 5-7 5c-1 0-1.9-.2-2.7-.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/>';
+  } else {
+    inp.type='password';
+    icon.innerHTML='<path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3" fill="none"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3" fill="none"/>';
+  }
+}
+
+function handleLogin(){
+  const email=document.getElementById('lemail').value.trim();
+  const pass=document.getElementById('lpassword').value;
+  const btn=document.getElementById('signinBtn');
+  const err=document.getElementById('lerrorMsg');
+  if(!email||!pass){err.classList.add('show');err.textContent='Please enter your email and password.';return;}
+  btn.classList.add('loading');btn.textContent='Signing in…';err.classList.remove('show');
+  setTimeout(()=>{
+    if(email.includes('@') && pass.length>=4){
+      document.getElementById('login-screen').style.display='none';
+      const ps=document.getElementById('portal-screen');
+      ps.style.display='flex';
+      // Set user display name
+      const name = email.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      document.getElementById('sb-name').textContent=name;
+      document.getElementById('sb-ava').textContent=initials;
+      document.getElementById('tb-ava').textContent=initials;
+      renderCandidatesTable(); renderSelectedTable(); renderCalendar();
+    } else {
+      btn.classList.remove('loading');btn.innerHTML='Sign In &nbsp;→';
+      err.textContent='Invalid email or password.';err.classList.add('show');
+    }
+  },900);
+}
+
+function doLogout(){
+  document.getElementById('portal-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('lemail').value='';
+  document.getElementById('lpassword').value='';
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')handleLogin();});
+
+// ════════════════════════ PORTAL NAV ════════════════════════
+const pageMeta={
+  dashboard:{title:'Dashboard',sub:'UpGro Media Hiring Portal · April 2026'},
+  candidates:{title:'All Candidates',sub:'47 candidates · Synced from 01/04/2026 onward'},
+  detail:{title:'Candidate Profile',sub:'Priya Sharma · Graphic Designer'},
+  interviews:{title:'Interview Schedule',sub:'8 interviews · 4 today, 3 tomorrow'},
+  calendar:{title:'Calendar View',sub:'April 2026'},
+  shortlisted:{title:'Shortlisted',sub:'12 candidates ready for final review'},
+  selected:{title:'Selected Candidates',sub:'4 candidates · Offer tracking ON'},
+  rejected:{title:'Rejected',sub:'9 candidates · Rejection emails sent'},
+  sheets:{title:'Connected Google Sheets',sub:'7 sheets · All tabs syncing'},
+  emails:{title:'Email Templates',sub:'5 branded templates · Auto-triggers ON'},
+  reports:{title:'Reports & Export',sub:'Download CSV by date, role, or status'},
+  users:{title:'Users & Roles',sub:'4 users · CEO, Admin, Operator'},
+  settings:{title:'Settings',sub:'Portal configuration & automation rules'}
+};
+function goTo(id,navEl){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  if(navEl)navEl.classList.add('active');
+  else{const f=document.querySelector(`.nav[onclick*="'${id}'"]`);if(f)f.classList.add('active');}
+  const m=pageMeta[id]||{};
+  document.getElementById('tb-title').textContent=m.title||id;
+  document.getElementById('tb-sub').textContent=m.sub||'';
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// ════════════════════════ SELECTED CANDIDATES DATA ════════════════════════
+const selData=[
+  {id:'s1',i:'NA',ic:'var(--blue-l)',it:'var(--blue)',n:'Neha Agrawal',e:'neha.a@gmail.com',r:'Graphic Designer',rc:'gd',
+   salary:'₹28,000/mo',finalRole:'Junior Graphic Designer',joiningDate:'2026-04-15',
+   offerSent:true,offerAccepted:null,documentation:false,
+   joiningChanged:false,newJoiningDate:'',joiningReason:''},
+  {id:'s2',i:'VS',ic:'var(--purple-l)',it:'var(--purple)',n:'Vivek Sharma',e:'vivek.s@gmail.com',r:'Video Editor',rc:'ve',
+   salary:'₹25,000/mo',finalRole:'Video Editor',joiningDate:'2026-04-20',
+   offerSent:true,offerAccepted:true,documentation:true,
+   joiningChanged:false,newJoiningDate:'',joiningReason:''},
+  {id:'s3',i:'RS',ic:'var(--green-l)',it:'var(--green)',n:'Rajesh Sharma',e:'rajesh.s@gmail.com',r:'Content Writer',rc:'cw',
+   salary:null,finalRole:null,joiningDate:null,
+   offerSent:false,offerAccepted:null,documentation:false,
+   joiningChanged:false,newJoiningDate:'',joiningReason:''},
+  {id:'s4',i:'AP',ic:'var(--amber-l)',it:'var(--amber)',n:'Anjali Pathak',e:'anjali.p@gmail.com',r:'Social Media Exec',rc:'sm',
+   salary:'₹22,000/mo',finalRole:'Social Media Executive',joiningDate:'2026-04-18',
+   offerSent:true,offerAccepted:false,documentation:false,
+   joiningChanged:true,newJoiningDate:'2026-04-25',joiningReason:'Family function hai, thoda time chahiye'},
+];
+let activeSalId=null,activeJoinId=null,activeOfferId=null;
+
+function fmtDate(d){
+  if(!d)return '—';
+  return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function showFlash(msg){
+  const el=document.getElementById('sync-flash');
+  el.textContent='📊 '+msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+function renderSelectedTable(){
+  const tbody=document.getElementById('sel-tbody');
+  if(!tbody)return;
+  tbody.innerHTML=selData.map(c=>{
+    // Salary
+    const salCell=c.salary?`<span style="font-weight:700;color:var(--green)">${c.salary}</span>`:`<span style="font-size:11.5px;color:var(--amber);font-weight:600">⏳ Pending CEO</span>`;
+    // Offer Letter sent badge
+    const offerSentCell=c.offerSent?`<span class="badge b-offer-sent">📄 Sent</span>`:`<span class="badge b-await-offer">⏳ Not Sent</span>`;
+    // Offer Response
+    let offerRespCell;
+    if(!c.offerSent){offerRespCell=`<span style="color:var(--s4);font-size:12px">—</span>`;}
+    else if(c.offerAccepted===true){offerRespCell=`<span class="badge b-accepted">✓ Accepted</span>`;}
+    else if(c.offerAccepted===false){offerRespCell=`<span class="badge b-declined">✕ Declined</span>`;}
+    else{offerRespCell=`<span class="badge b-await-offer">⏳ Awaiting</span><div style="display:flex;gap:4px;margin-top:5px"><button class="mini-btn green" onclick="markAccepted('${c.id}')">✓ Accept</button><button class="mini-btn red" onclick="markDeclined('${c.id}')">✕ Decline</button></div>`;}
+    // Documentation
+    let docCell;
+    if(!c.salary){docCell=`<span style="color:var(--s4);font-size:12px">—</span>`;}
+    else if(c.documentation){docCell=`<span class="badge b-doc-done">✓ Done</span>`;}
+    else{docCell=`<span class="badge b-doc-pend">⏳ Pending</span><div style="margin-top:5px"><button class="mini-btn green" onclick="markDoc('${c.id}')">✓ Mark Done</button></div>`;}
+    // Joining Date
+    let joinCell;
+    if(!c.joiningDate){joinCell=`<span style="color:var(--s4);font-size:12px">—</span>`;}
+    else{
+      let dateDisplay=fmtDate(c.joiningDate);
+      if(c.joiningChanged&&c.newJoiningDate){
+        dateDisplay=`<span style="text-decoration:line-through;color:var(--s4);font-size:11px">${fmtDate(c.joiningDate)}</span><br><span class="badge b-join-changed" style="margin-top:3px">📅 ${fmtDate(c.newJoiningDate)}</span>`;
+      }
+      joinCell=`<div>${dateDisplay}</div><div style="margin-top:5px"><button class="mini-btn blue" onclick="openJoinModal('${c.id}')">📅 Change</button></div>`;
+    }
+    // Actions
+    let actCell;
+    if(!c.salary){actCell=`<button class="btn btn-p btn-sm" onclick="openSalModal('${c.id}')">💰 Enter Salary</button>`;}
+    else{actCell=`<div class="sel-actions"><button class="btn btn-g btn-sm" onclick="openOfferModal('${c.id}')">📄 Offer Details</button><button class="btn btn-g btn-sm" onclick="resendOffer('${c.id}')">✉ Resend</button></div>`;}
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:${c.ic};color:${c.it};width:32px;height:32px;border-radius:8px;font-size:11px">${c.i}</div><div><div class="td-name">${c.n}</div><div class="td-email">${c.e}</div></div></div></td>
+      <td><span class="rp rp-${c.rc}">${c.r}</span></td>
+      <td>${salCell}</td>
+      <td>${offerSentCell}</td>
+      <td style="min-width:130px">${offerRespCell}</td>
+      <td style="min-width:110px">${docCell}</td>
+      <td style="min-width:130px">${joinCell}</td>
+      <td>${actCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Offer Accept/Decline
+function markAccepted(id){
+  const c=selData.find(x=>x.id===id);c.offerAccepted=true;
+  renderSelectedTable();
+  showFlash(`Google Sheet Update ✅ — ${c.n}: Offer Accepted! Joining: ${fmtDate(c.joiningDate)}`);
+}
+function markDeclined(id){
+  const c=selData.find(x=>x.id===id);c.offerAccepted=false;
+  renderSelectedTable();
+  showFlash(`Google Sheet Update ⚠️ — ${c.n}: Offer Declined.`);
+}
+// Documentation
+function markDoc(id){
+  const c=selData.find(x=>x.id===id);c.documentation=true;
+  renderSelectedTable();
+  showFlash(`Google Sheet Update 📎 — ${c.n}: Documentation Complete ✓`);
+}
+// Resend Email
+function resendOffer(id){
+  const c=selData.find(x=>x.id===id);
+  showFlash(`✉ Offer Letter Resent → ${c.n} (${c.e})`);
+}
+
+// Salary Modal
+function openSalModal(id){
+  activeSalId=id;
+  const c=selData.find(x=>x.id===id);
+  document.getElementById('sal-cname').value=c.n;
+  document.getElementById('sal-amount').value='';
+  document.getElementById('sal-role').value=c.r;
+  document.getElementById('sal-joining').value='';
+  openModal('mo-salary');
+}
+function saveSalary(){
+  const c=selData.find(x=>x.id===activeSalId);
+  const amt=document.getElementById('sal-amount').value;
+  const role=document.getElementById('sal-role').value;
+  const jdate=document.getElementById('sal-joining').value;
+  if(!amt||!role||!jdate){alert('Salary, role aur joining date teeno fill karein.');return;}
+  c.salary='₹'+parseInt(amt).toLocaleString('en-IN')+'/mo';
+  c.finalRole=role;c.joiningDate=jdate;c.offerSent=true;c.offerAccepted=null;
+  closeModal('mo-salary');renderSelectedTable();
+  showFlash(`Google Sheet Update ✅ — ${c.n}: Offer Letter Sent | Salary: ${c.salary} | Joining: ${fmtDate(jdate)}`);
+}
+
+// Offer Details Modal
+function openOfferModal(id){
+  activeOfferId=id;
+  const c=selData.find(x=>x.id===id);
+  document.getElementById('offer-modal-title').textContent='📄 Offer Details — '+c.n;
+  const resp=c.offerAccepted===true?'<span class="badge b-accepted">✓ Accepted</span>':c.offerAccepted===false?'<span class="badge b-declined">✕ Declined</span>':'<span class="badge b-await-offer">⏳ Awaiting Response</span>';
+  const doc=c.documentation?'<span class="badge b-doc-done">✓ Complete</span>':'<span class="badge b-doc-pend">⏳ Pending</span>';
+  let changeNotice='';
+  if(c.joiningChanged&&c.newJoiningDate){
+    changeNotice=`<div class="notice" style="background:var(--amber-l);border-radius:8px;color:var(--amber);margin-bottom:14px">
+      ⚠ <strong>Joining Date Change Request</strong> — ${c.n} ne nayi date maangi hai.<br>
+      Nayi Date: <strong>${fmtDate(c.newJoiningDate)}</strong> &nbsp;|&nbsp; Reason: <em>${c.joiningReason}</em>
+      <div class="flex-end" style="margin-top:8px">
+        <button class="btn btn-p btn-sm" onclick="approveJoinChange('${c.id}')">✓ Approve Nayi Date</button>
+        <button class="btn btn-g btn-sm" onclick="closeModal('mo-offer')">Baad Mein</button>
+      </div>
+    </div>`;
+  }
+  let docAction='';
+  if(!c.documentation&&c.offerAccepted===true){
+    docAction=`<div class="notice" style="background:var(--amber-l);border-radius:8px;color:var(--amber);margin-bottom:14px">
+      📎 <strong>Documentation abhi pending hai.</strong> Candidate ne offer accept kar liya — documents collect karein.
+      <div style="margin-top:8px"><button class="btn btn-p btn-sm" onclick="markDoc('${c.id}');closeModal('mo-offer')">✓ Mark Documentation Done</button></div>
+    </div>`;
+  }
+  document.getElementById('offer-modal-body').innerHTML=`
+    ${changeNotice}${docAction}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="icard"><div class="icard-t">Offer Details</div>
+        <div class="irow"><span class="ik">Final Role</span><span class="iv2">${c.finalRole||'—'}</span></div>
+        <div class="irow"><span class="ik">Salary</span><span class="iv2" style="color:var(--green);font-weight:700">${c.salary||'—'}</span></div>
+        <div class="irow"><span class="ik">Joining Date</span><span class="iv2">${fmtDate(c.joiningDate)}</span></div>
+      </div>
+      <div class="icard"><div class="icard-t">Current Status</div>
+        <div class="irow"><span class="ik">Offer Sent</span><span class="iv2">${c.offerSent?'✓ Yes':'✗ No'}</span></div>
+        <div class="irow"><span class="ik">Response</span><span class="iv2">${resp}</span></div>
+        <div class="irow"><span class="ik">Documentation</span><span class="iv2">${doc}</span></div>
+      </div>
+    </div>
+    <div class="flex-end">
+      <button class="btn btn-g" onclick="closeModal('mo-offer')">Close</button>
+      <button class="btn btn-p" onclick="resendOffer('${c.id}');closeModal('mo-offer')">✉ Resend Offer Email</button>
+    </div>`;
+  openModal('mo-offer');
+}
+function approveJoinChange(id){
+  const c=selData.find(x=>x.id===id);
+  c.joiningDate=c.newJoiningDate;c.joiningChanged=false;c.newJoiningDate='';c.joiningReason='';
+  closeModal('mo-offer');renderSelectedTable();
+  showFlash(`Google Sheet Update 📅 — ${c.n}: Nayi Joining Date ${fmtDate(c.joiningDate)} confirm ho gayi`);
+}
+
+// Joining Date Modal
+function openJoinModal(id){
+  activeJoinId=id;
+  const c=selData.find(x=>x.id===id);
+  document.getElementById('jd-cname').value=c.n;
+  document.getElementById('jd-old').value=fmtDate(c.joiningDate);
+  document.getElementById('jd-new').value=c.newJoiningDate||'';
+  document.getElementById('jd-reason').value=c.joiningReason||'';
+  openModal('mo-joining');
+}
+function saveJoiningChange(){
+  const c=selData.find(x=>x.id===activeJoinId);
+  const nd=document.getElementById('jd-new').value;
+  const reason=document.getElementById('jd-reason').value.trim();
+  if(!nd){alert('Nayi date select karein.');return;}
+  if(!reason){alert('Reason likhna zaroori hai.');return;}
+  c.newJoiningDate=nd;c.joiningReason=reason;c.joiningChanged=true;
+  closeModal('mo-joining');renderSelectedTable();
+  showFlash(`Google Sheet Update 📅 — ${c.n}: Joining Change → ${fmtDate(nd)} | Reason: "${reason}"`);
+}
+
+// ════════════════════════ ALL CANDIDATES TABLE ════════════════════════
+const allCands=[
+  {i:'PS',ic:'var(--blue-l)',it:'var(--blue)',n:'Priya Sharma',e:'priya.sharma@gmail.com',r:'Graphic Designer',rc:'gd',src:'Sheet-1',d:'Apr 3',exp:'2.5y',s:'sch'},
+  {i:'RV',ic:'var(--purple-l)',it:'var(--purple)',n:'Rohit Verma',e:'rohit.v@gmail.com',r:'Video Editor',rc:'ve',src:'Sheet-2',d:'Apr 3',exp:'1y',s:'new'},
+  {i:'SP',ic:'var(--green-l)',it:'var(--green)',n:'Sneha Patel',e:'sneha.p@gmail.com',r:'Content Writer',rc:'cw',src:'Sheet-3',d:'Apr 2',exp:'3y',s:'inc'},
+  {i:'AJ',ic:'var(--amber-l)',it:'var(--amber)',n:'Amit Joshi',e:'amit.j@gmail.com',r:'Graphic Designer',rc:'gd',src:'Sheet-1',d:'Apr 2',exp:'3y',s:'shl'},
+  {i:'MR',ic:'var(--brand-l)',it:'var(--brand)',n:'Meena Rao',e:'meena.rao@gmail.com',r:'Social Media Exec',rc:'sm',src:'Sheet-2',d:'Apr 1',exp:'2y',s:'rej'},
+  {i:'DN',ic:'var(--blue-l)',it:'var(--blue)',n:'Divya Nair',e:'divya.n@gmail.com',r:'Graphic Designer',rc:'gd',src:'Sheet-1',d:'Apr 1',exp:'2y',s:'shl'},
+  {i:'KS',ic:'var(--amber-l)',it:'var(--amber)',n:'Karan Singh',e:'karan.s@gmail.com',r:'Social Media Exec',rc:'sm',src:'Sheet-2',d:'Apr 3',exp:'1.5y',s:'sch'},
+  {i:'AG',ic:'var(--green-l)',it:'var(--green)',n:'Ananya Gupta',e:'ananya.g@gmail.com',r:'Content Writer',rc:'cw',src:'Sheet-3',d:'Apr 3',exp:'2y',s:'sch'},
+  {i:'RM',ic:'var(--purple-l)',it:'var(--purple)',n:'Rahul Mehta',e:'rahul.m@gmail.com',r:'Video Editor',rc:'ve',src:'Sheet-2',d:'Apr 3',exp:'3y',s:'sch'},
+  {i:'SK',ic:'var(--teal-l)',it:'var(--teal)',n:'Suresh Kumar',e:'suresh.k@gmail.com',r:'Video Editor',rc:'ve',src:'Sheet-2',d:'Apr 4',exp:'4y',s:'shl'},
+  {i:'PT',ic:'var(--brand-l)',it:'var(--brand)',n:'Pooja Tiwari',e:'pooja.t@gmail.com',r:'Content Writer',rc:'cw',src:'Sheet-3',d:'Apr 4',exp:'2y',s:'shl'},
+  {i:'TK',ic:'var(--blue-l)',it:'var(--blue)',n:'Tarun Kapoor',e:'tarun.k@gmail.com',r:'Graphic Designer',rc:'gd',src:'Sheet-1',d:'Apr 2',exp:'1y',s:'rej'},
+  {i:'SM',ic:'var(--purple-l)',it:'var(--purple)',n:'Sunita Mishra',e:'sunita.m@gmail.com',r:'Video Editor',rc:'ve',src:'Sheet-2',d:'Apr 2',exp:'3y',s:'rej'},
+  {i:'NA',ic:'var(--green-l)',it:'var(--green)',n:'Neha Agrawal',e:'neha.a@gmail.com',r:'Graphic Designer',rc:'gd',src:'Sheet-1',d:'Apr 1',exp:'3y',s:'sel'},
+  {i:'VS',ic:'var(--purple-l)',it:'var(--purple)',n:'Vivek Sharma',e:'vivek.s@gmail.com',r:'Video Editor',rc:'ve',src:'Sheet-2',d:'Apr 1',exp:'5y',s:'sel'},
+  {i:'RS',ic:'var(--amber-l)',it:'var(--amber)',n:'Rajesh Sharma',e:'rajesh.s@gmail.com',r:'Content Writer',rc:'cw',src:'Sheet-3',d:'Apr 3',exp:'2y',s:'sel'},
+];
+const sMap={new:{cls:'b-new',lbl:'New Application'},sch:{cls:'b-sch',lbl:'Interview Scheduled'},shl:{cls:'b-shl',lbl:'Shortlisted'},sel:{cls:'b-sel',lbl:'Selected'},rej:{cls:'b-rej',lbl:'Rejected'},inc:{cls:'b-inc',lbl:'Incomplete'}};
+const rcMap={gd:'rp-gd',ve:'rp-ve',cw:'rp-cw',sm:'rp-sm'};
+
+function renderCandidatesTable(){
+  const srch=(document.getElementById('cand-search')||{}).value||'';
+  const sf=(document.getElementById('cand-status')||{}).value||'';
+  const tbody=document.getElementById('cand-tbody');
+  if(!tbody)return;
+  let list=allCands.filter(c=>{
+    const mt=!srch||c.n.toLowerCase().includes(srch.toLowerCase())||c.r.toLowerCase().includes(srch.toLowerCase())||c.e.toLowerCase().includes(srch.toLowerCase());
+    const ms=!sf||c.s===sf;
+    return mt&&ms;
+  });
+  tbody.innerHTML=list.map(c=>{
+    const st=sMap[c.s]||{cls:'b-new',lbl:c.s};
+    return `<tr onclick="goTo('detail',null)">
+      <td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:${c.ic};color:${c.it};width:32px;height:32px;border-radius:8px;font-size:11px">${c.i}</div><div><div class="td-name">${c.n}</div><div class="td-email">${c.e}</div></div></div></td>
+      <td><span class="rp ${rcMap[c.rc]||'rp-gd'}">${c.r}</span></td>
+      <td><span class="src-tag">${c.src}</span></td>
+      <td>${c.d}</td><td>${c.exp}</td>
+      <td><span class="badge ${st.cls}">${st.lbl}</span></td>
+      <td><button class="btn btn-g btn-sm" onclick="event.stopPropagation();goTo('detail',null)">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+const srchEl=document.getElementById('cand-search');
+const sfEl=document.getElementById('cand-status');
+if(srchEl)srchEl.addEventListener('input',renderCandidatesTable);
+if(sfEl)sfEl.addEventListener('change',renderCandidatesTable);
+
+// ════════════════════════ CALENDAR ════════════════════════
+function renderCalendar(){
+  const grid=document.getElementById('cal-grid');
+  if(!grid)return;
+  const ev={3:['Priya 10AM','Rahul 12:30PM','Ananya 3PM','Karan 5PM'],4:['Divya 11AM','Suresh 2PM','Pooja 4:30PM'],15:['Neha — Joining'],20:['Vivek — Joining'],18:['Anjali — Joining']};
+  let h='';
+  for(let i=0;i<2;i++)h+='<div></div>';// April 2026 starts Wednesday
+  for(let d=1;d<=30;d++){
+    const evs=ev[d]||[];
+    h+=`<div class="cal-day${d===3?' today':''}"><div class="cal-dn">${d}</div>${evs.slice(0,2).map(e=>e.includes('Joining')?`<div class="cal-ev green">${e}</div>`:`<div class="cal-ev">${e}</div>`).join('')}${evs.length>2?`<div style="font-size:9px;color:var(--s4)">+${evs.length-2}</div>`:''}</div>`;
+  }
+  grid.innerHTML=h;
+}
+</script>
+</body>
+</html>
