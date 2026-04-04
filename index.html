@@ -131,13 +131,23 @@ function goTo(id,navEl){
   document.querySelectorAll('.nav').forEach(function(n){n.classList.remove('active');});
   var pg=document.getElementById('page-'+id);
   if(pg)pg.classList.add('active');
-  if(navEl)navEl.classList.add('active');
-  else{var f=document.querySelector('.nav[onclick*="\'' +id+ '\'"]');if(f)f.classList.add('active');}
+  if(navEl){
+    navEl.classList.add('active');
+  } else {
+    document.querySelectorAll('.nav').forEach(function(n){
+      var oc=n.getAttribute('onclick')||'';
+      if(oc.indexOf("'"+id+"'")>-1 || oc.indexOf('"'+id+'"')>-1){
+        n.classList.add('active');
+      }
+    });
+  }
   var m=pageMeta[id]||{};
   document.getElementById('tb-title').textContent=m.title||id;
   document.getElementById('tb-sub').textContent=m.sub||'';
   if(id==='test')setTimeout(renderAllPreviews,50);
   if(id==='settings'){setTimeout(renderAppsScriptCode,50);setTimeout(function(){loadSavedSettings();updateDateFilterUI();},80);}
+  var content=document.querySelector('.content');
+  if(content)content.scrollTop=0;
 }
 
 function openModal(id){var el=document.getElementById(id);if(el)el.classList.add('open');}
@@ -302,27 +312,43 @@ function renderSelectedTable(){
   var rcMap={gd:'rp-gd',ve:'rp-ve',cw:'rp-cw',sm:'rp-sm'};
   tbody.innerHTML=selData.map(function(c){
     var salCell=c.salary
-      ?'<div style="display:flex;align-items:center;gap:6px"><span style="font-weight:700;color:#15803D">Rs.'+c.salary.toLocaleString('en-IN')+'/mo</span><button class="mini-btn blue" onclick="openSalModal(\'' +c.id+ '\')">Edit</button></div>'
-      :'<button class="btn btn-p btn-sm" onclick="openSalModal(\'' +c.id+ '\')">Enter Salary</button>';
+      ?'<div style="display:flex;align-items:center;gap:6px"><span style="font-weight:700;color:#15803D">Rs.'+c.salary.toLocaleString('en-IN')+'/mo</span><button class="mini-btn blue" data-action="editsal" data-id="'+c.id+'">Edit</button></div>'
+      :'<button class="btn btn-p btn-sm" data-action="editsal" data-id="'+c.id+'">Enter Salary</button>';
     var offerSent=c.offerSent?'<span class="badge b-offer-sent">Sent</span>':'<span class="badge b-await-offer">Not Sent</span>';
     var offerResp;
     if(!c.offerSent)offerResp='<span style="color:#94A3B8;font-size:12px">—</span>';
     else if(c.offerAccepted===true)offerResp='<span class="badge b-accepted">Accepted</span>';
     else if(c.offerAccepted===false)offerResp='<span class="badge b-declined">Declined</span>';
-    else offerResp='<span class="badge b-await-offer">Awaiting</span><div style="display:flex;gap:4px;margin-top:5px"><button class="mini-btn green" onclick="markAccepted(\'' +c.id+ '\')">Accept</button><button class="mini-btn red" onclick="markDeclined(\'' +c.id+ '\')">Decline</button></div>';
+    else offerResp='<span class="badge b-await-offer">Awaiting</span><div style="display:flex;gap:4px;margin-top:5px"><button class="mini-btn green" data-action="accept" data-id="'+c.id+'">Accept</button><button class="mini-btn red" data-action="decline" data-id="'+c.id+'">Decline</button></div>';
     var docCell;
     if(!c.salary)docCell='<span style="color:#94A3B8;font-size:12px">—</span>';
     else if(c.documentation)docCell='<span class="badge b-doc-done">Done</span>';
-    else docCell='<span class="badge b-doc-pend">Pending</span><div style="margin-top:5px"><button class="mini-btn green" onclick="markDoc(\'' +c.id+ '\')">Mark Done</button></div>';
+    else docCell='<span class="badge b-doc-pend">Pending</span><div style="margin-top:5px"><button class="mini-btn green" data-action="doc" data-id="'+c.id+'">Mark Done</button></div>';
     var joinCell;
     if(!c.joiningDate)joinCell='<span style="color:#94A3B8;font-size:12px">—</span>';
     else{
       var dd=c.joiningChanged&&c.newJoiningDate?'<s style="color:#94A3B8;font-size:11px">'+fmtDate(c.joiningDate)+'</s><br><span class="badge b-join-changed">'+fmtDate(c.newJoiningDate)+'</span>':fmtDate(c.joiningDate);
-      joinCell='<div>'+dd+'</div><div style="margin-top:5px"><button class="mini-btn blue" onclick="openJoinModal(\'' +c.id+ '\')">Change</button></div>';
+      joinCell='<div>'+dd+'</div><div style="margin-top:5px"><button class="mini-btn blue" data-action="joindlg" data-id="'+c.id+'">Change</button></div>';
     }
-    var waBtn='<button class="mini-btn wa" onclick="openWASendModal(\'' +c.n+ '\',\'' +c.ph+ '\',\'interview_scheduled\',\'' +c.r+ '\',\''+fmtDate(c.joiningDate)+'\',' + '\'' + 'Joining' + '\',\'Dhiraj Sir\',\'https://meet.google.com\')">WA</button>';
-    return '<tr><td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:'+c.ic+';color:'+c.it+';width:32px;height:32px;border-radius:8px;font-size:11px">'+c.i+'</div><div><div class="td-name">'+c.n+'</div><div class="td-email">'+c.e+'</div></div></div></td><td><span class="rp '+(rcMap[c.rc]||'rp-gd')+'">'+c.r+'</span></td><td>'+salCell+'</td><td>'+offerSent+'</td><td style="min-width:130px">'+offerResp+'</td><td style="min-width:110px">'+docCell+'</td><td style="min-width:130px">'+joinCell+'</td><td><div style="display:flex;flex-direction:column;gap:4px"><button class="mini-btn blue" onclick="openSalModal(\'' +c.id+ '\')">Edit Salary</button>'+waBtn+'</div></td></tr>';
+    var actCell='<div style="display:flex;flex-direction:column;gap:4px"><button class="mini-btn blue" data-action="editsal" data-id="'+c.id+'">Edit Salary</button><button class="mini-btn wa" data-action="wa" data-id="'+c.id+'">WA</button></div>';
+    return '<tr><td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:'+c.ic+';color:'+c.it+';width:32px;height:32px;border-radius:8px;font-size:11px">'+c.i+'</div><div><div class="td-name">'+c.n+'</div><div class="td-email">'+c.e+'</div></div></div></td><td><span class="rp '+(rcMap[c.rc]||'rp-gd')+'">'+c.r+'</span></td><td>'+salCell+'</td><td>'+offerSent+'</td><td style="min-width:130px">'+offerResp+'</td><td style="min-width:110px">'+docCell+'</td><td style="min-width:130px">'+joinCell+'</td><td>'+actCell+'</td></tr>';
   }).join('');
+  // Event delegation for selected table buttons
+  tbody.onclick=function(e){
+    var btn=e.target.closest('[data-action]');
+    if(!btn)return;
+    var id=btn.dataset.id;
+    var action=btn.dataset.action;
+    if(action==='editsal')openSalModal(id);
+    else if(action==='accept')markAccepted(id);
+    else if(action==='decline')markDeclined(id);
+    else if(action==='doc')markDoc(id);
+    else if(action==='joindlg')openJoinModal(id);
+    else if(action==='wa'){
+      var c=selData.find(function(x){return x.id===id;});
+      if(c)openWASendModal(c.n,c.ph,'interview_scheduled',c.r,fmtDate(c.joiningDate),'Offer Notification','Dhiraj Sir','https://meet.google.com');
+    }
+  };
 }
 
 function renderCandidatesTable(){
@@ -339,8 +365,19 @@ function renderCandidatesTable(){
   });
   tbody.innerHTML=list.map(function(c){
     var st=sMap[c.s]||{cls:'b-new',lbl:c.s};
-    return '<tr onclick="goTo(\'detail\',null)"><td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:'+c.ic+';color:'+c.it+';width:32px;height:32px;border-radius:8px;font-size:11px">'+c.i+'</div><div><div class="td-name">'+c.n+'</div><div class="td-email">'+c.e+'</div></div></div></td><td><span class="rp '+(rcMap[c.rc]||'rp-gd')+'">'+c.r+'</span></td><td><span class="src-tag">'+c.src+'</span></td><td>'+c.d+'</td><td>'+c.exp+'</td><td><span class="badge '+st.cls+'">'+st.lbl+'</span></td><td><button class="btn btn-g btn-sm" onclick="event.stopPropagation();goTo(\'detail\',null)">View</button></td></tr>';
+    var row='<tr data-nav="detail" style="cursor:pointer">';
+    row+='<td><div style="display:flex;align-items:center;gap:9px"><div class="ava" style="background:'+c.ic+';color:'+c.it+';width:32px;height:32px;border-radius:8px;font-size:11px">'+c.i+'</div><div><div class="td-name">'+c.n+'</div><div class="td-email">'+c.e+'</div></div></div></td>';
+    row+='<td><span class="rp '+(rcMap[c.rc]||'rp-gd')+'">'+c.r+'</span></td>';
+    row+='<td><span class="src-tag">'+c.src+'</span></td>';
+    row+='<td>'+c.d+'</td><td>'+c.exp+'</td>';
+    row+='<td><span class="badge '+st.cls+'">'+st.lbl+'</span></td>';
+    row+='<td><button class="btn btn-g btn-sm" data-nav="detail">View</button></td>';
+    row+='</tr>';
+    return row;
   }).join('');
+  tbody.onclick=function(e){
+    if(e.target.closest('[data-nav]')) goTo('detail',null);
+  };
 }
 
 function renderCalendar(){
@@ -535,17 +572,26 @@ function updateSyncStatus(state, msg) {
   var el = document.getElementById('sync-status-bar');
   if (!el) return;
   var time = LIVE_DATA.lastFetch ? LIVE_DATA.lastFetch.toLocaleTimeString() : 'Never';
+  var html = '';
   if (state === 'syncing') {
-    el.innerHTML = '<span style="color:#B45309">⟳ Syncing with Google Sheets...</span>';
+    html = '<span style="color:#B45309">&#x21BB; Syncing with Google Sheets...</span>';
   } else if (state === 'ok') {
     var dateLabel = SHEETS_CONFIG.noDateFilter ? 'all dates' : 'from ' + SHEETS_CONFIG.startDate;
-    el.innerHTML = '<span style="color:#15803D">✓ Live — ' + (LIVE_DATA.candidates.length||0) + ' candidates (' + dateLabel + ') · synced ' + time + ' &nbsp;<button onclick="fetchFromSheets(false)" class="mini-btn blue" style="font-size:10px;padding:2px 8px">Refresh</button> <button onclick="goTo(\'settings\',null)" class="mini-btn blue" style="font-size:10px;padding:2px 8px">Change Date</button></span>';
+    html = '<span style="color:#15803D">&#x2713; Live &mdash; ' + (LIVE_DATA.candidates.length||0) + ' candidates (' + dateLabel + ') &middot; synced ' + time
+         + ' &nbsp;<button class="mini-btn blue" style="font-size:10px;padding:2px 8px" id="sb-refresh-btn">Refresh</button>'
+         + ' <button class="mini-btn blue" style="font-size:10px;padding:2px 8px" id="sb-settings-btn">Change Date</button></span>';
   } else if (state === 'error') {
-    el.innerHTML = '<span style="color:#E8272A">⚠ Sheets connection error — showing cached data. <button onclick="goTo(\'settings\',null)" class="mini-btn red" style="font-size:10px;padding:2px 8px">Fix in Settings</button></span>';
+    html = '<span style="color:#E8272A">&#x26A0; Connection error &mdash; cached data shown. <button class="mini-btn red" style="font-size:10px;padding:2px 8px" id="sb-settings-btn">Fix in Settings</button></span>';
   } else {
     var curDate = SHEETS_CONFIG.noDateFilter ? 'all dates' : ('from ' + SHEETS_CONFIG.startDate);
-    el.innerHTML = '<span style="color:#94A3B8">○ Not connected &nbsp;|&nbsp; Filter: ' + curDate + ' &nbsp;<button onclick="goTo(\'settings\',null)" class="mini-btn blue" style="font-size:10px;padding:2px 8px">Connect & Configure</button></span>';
+    html = '<span style="color:#94A3B8">&#x25CB; Not connected &nbsp;|&nbsp; Filter: ' + curDate
+         + ' &nbsp;<button class="mini-btn blue" style="font-size:10px;padding:2px 8px" id="sb-settings-btn">Connect &amp; Configure</button></span>';
   }
+  el.innerHTML = html;
+  var rb = document.getElementById('sb-refresh-btn');
+  var sb = document.getElementById('sb-settings-btn');
+  if (rb) rb.onclick = function(){ fetchFromSheets(false); };
+  if (sb) sb.onclick = function(){ goTo('settings', null); };
 }
 
 function showSetupBanner() {
@@ -800,35 +846,10 @@ function updateDateFilterUI() {
 }
 
 function updateSyncStatusDateLabel() {
-  var bar = document.getElementById('sync-status-bar');
-  if (!bar) return;
-  // Re-render with current date info appended if connected
   if (LIVE_DATA.lastFetch) {
-    var dateLabel = SHEETS_CONFIG.noDateFilter ? 'all dates' : 'from ' + SHEETS_CONFIG.startDate;
-    var time = LIVE_DATA.lastFetch.toLocaleTimeString();
-    bar.innerHTML = '<span style="color:#15803D">✓ Live — ' + LIVE_DATA.candidates.length + ' candidates loaded (' + dateLabel + ') · synced at ' + time + ' &nbsp;<button onclick="fetchFromSheets(false)" class="mini-btn blue" style="font-size:10px;padding:2px 8px">Refresh</button></span>';
+    updateSyncStatus('ok');
   }
 }
-
-// Also update markAccepted/Declined/Doc to push to sheet
-var _origMarkAccepted = markAccepted;
-markAccepted = function(id) {
-  _origMarkAccepted(id);
-  var c = (LIVE_DATA.candidates.length ? LIVE_DATA.candidates : selData).find(function(x){return x.id===id;});
-  if (c) pushToSheet(c.id, COL_MAP.offerAccepted, 'Yes');
-};
-var _origMarkDeclined = markDeclined;
-markDeclined = function(id) {
-  _origMarkDeclined(id);
-  var c = (LIVE_DATA.candidates.length ? LIVE_DATA.candidates : selData).find(function(x){return x.id===id;});
-  if (c) pushToSheet(c.id, COL_MAP.offerAccepted, 'No');
-};
-var _origMarkDoc = markDoc;
-markDoc = function(id) {
-  _origMarkDoc(id);
-  var c = (LIVE_DATA.candidates.length ? LIVE_DATA.candidates : selData).find(function(x){return x.id===id;});
-  if (c) pushToSheet(c.id, COL_MAP.documentation, 'Done');
-};
 
 document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.mo').forEach(function(m){
@@ -841,7 +862,6 @@ document.addEventListener('DOMContentLoaded',function(){
   document.addEventListener('keydown',function(e){
     if(e.key==='Enter'&&document.getElementById('login-screen')&&document.getElementById('login-screen').style.display!=='none')handleLogin();
   });
-  // Load saved Google Sheets config
   loadSavedSettings();
   updateSyncStatus('disconnected');
 });
@@ -1089,6 +1109,15 @@ select.fsel,input.fsel{border:1px solid var(--s2);border-radius:8px;padding:6px 
 .prof-acts{display:flex;gap:7px;margin-left:auto;align-items:flex-start;flex-wrap:wrap}
 .mb16{margin-bottom:16px}
 .mt8{margin-top:8px}
+.sc{cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+.sc:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:var(--s4)}
+.sc:active{transform:translateY(0) scale(.98);box-shadow:none}
+.pipe-row{cursor:pointer;transition:background .15s,border-color .15s,transform .12s}
+.pipe-row:hover{background:#fff;border-color:var(--blue);transform:translateX(2px)}
+.pipe-row:active{transform:translateX(0) scale(.99)}
+.sc-arrow{position:absolute;bottom:10px;right:12px;font-size:13px;color:var(--s2);transition:color .15s,transform .15s}
+.sc:hover .sc-arrow{color:var(--s4);transform:translateX(2px)}
+
 </style>
 </head>
 <body>
@@ -1175,20 +1204,44 @@ select.fsel,input.fsel{border:1px solid var(--s2);border-radius:8px;padding:6px 
   <!-- DASHBOARD -->
   <div id="page-dashboard" class="page active">
     <div class="sg4">
-      <div class="sc"><div class="sc-accent" style="background:var(--blue)"></div><div class="sc-label">Total Candidates</div><div class="sc-val" id="stat-total">47</div><div class="sc-trend t-up">↑ 12 this week</div></div>
-      <div class="sc"><div class="sc-accent" style="background:#6D28D9"></div><div class="sc-label">Interviews Today</div><div class="sc-val">4</div><div class="sc-trend t-up">Apr 3, 2026</div></div>
-      <div class="sc"><div class="sc-accent" style="background:var(--green)"></div><div class="sc-label">Selected</div><div class="sc-val">4</div><div class="sc-trend t-up">↑ 2 offers sent</div></div>
-      <div class="sc"><div class="sc-accent" style="background:var(--wa)"></div><div class="sc-label">WhatsApp Sent</div><div class="sc-val">16</div><div class="sc-trend" style="color:var(--wa)">from +91 9214139185</div></div>
+      <div class="sc" onclick="goTo('candidates',null)" title="View all candidates" style="position:relative">
+        <div class="sc-accent" style="background:var(--blue)"></div>
+        <div class="sc-label">Total Candidates</div>
+        <div class="sc-val" id="stat-total">47</div>
+        <div class="sc-trend t-up">↑ 12 this week</div>
+        <div class="sc-arrow">→</div>
+      </div>
+      <div class="sc" onclick="goTo('interviews',null)" title="View interview schedule" style="position:relative">
+        <div class="sc-accent" style="background:#6D28D9"></div>
+        <div class="sc-label">Interviews Today</div>
+        <div class="sc-val" id="stat-scheduled">4</div>
+        <div class="sc-trend t-up">Apr 3, 2026</div>
+        <div class="sc-arrow">→</div>
+      </div>
+      <div class="sc" onclick="goTo('selected',null)" title="View selected candidates" style="position:relative">
+        <div class="sc-accent" style="background:var(--green)"></div>
+        <div class="sc-label">Selected</div>
+        <div class="sc-val" id="stat-selected">4</div>
+        <div class="sc-trend t-up">↑ 2 offers sent</div>
+        <div class="sc-arrow">→</div>
+      </div>
+      <div class="sc" onclick="goTo('test',null)" title="View WhatsApp test panel" style="position:relative">
+        <div class="sc-accent" style="background:var(--wa)"></div>
+        <div class="sc-label">WhatsApp Sent</div>
+        <div class="sc-val">16</div>
+        <div class="sc-trend" style="color:var(--wa)">from +91 9214139185</div>
+        <div class="sc-arrow">→</div>
+      </div>
     </div>
     <div class="sg2">
       <div class="card">
         <div class="card-hd"><span class="card-title">Hiring Pipeline</span><span class="card-act" onclick="goTo('candidates',null)">View all →</span></div>
         <div class="pipe">
-          <div class="pipe-row"><div class="pipe-dot" style="background:var(--blue)"></div><div class="pipe-name">New Applications</div><div class="pipe-bw"><div class="pipe-b" id="pipe-new" style="width:30%;background:var(--blue)"></div></div><div class="pipe-n" id="nb-pipe-new">14</div></div>
-          <div class="pipe-row"><div class="pipe-dot" style="background:#6D28D9"></div><div class="pipe-name">Interview Scheduled</div><div class="pipe-bw"><div class="pipe-b" id="pipe-sch" style="width:17%;background:#6D28D9"></div></div><div class="pipe-n" id="nb-pipe-sch">8</div></div>
-          <div class="pipe-row"><div class="pipe-dot" style="background:var(--amber)"></div><div class="pipe-name">Shortlisted</div><div class="pipe-bw"><div class="pipe-b" id="pipe-shl" style="width:26%;background:var(--amber)"></div></div><div class="pipe-n" id="nb-pipe-shl">12</div></div>
-          <div class="pipe-row"><div class="pipe-dot" style="background:var(--green)"></div><div class="pipe-name">Selected</div><div class="pipe-bw"><div class="pipe-b" id="pipe-sel" style="width:9%;background:var(--green)"></div></div><div class="pipe-n" id="nb-pipe-sel">4</div></div>
-          <div class="pipe-row"><div class="pipe-dot" style="background:var(--brand)"></div><div class="pipe-name">Rejected</div><div class="pipe-bw"><div class="pipe-b" id="pipe-rej" style="width:19%;background:var(--brand)"></div></div><div class="pipe-n" id="nb-pipe-rej">9</div></div>
+          <div class="pipe-row" onclick="goTo('candidates',null)" title="View new applications"><div class="pipe-dot" style="background:var(--blue)"></div><div class="pipe-name">New Applications</div><div class="pipe-bw"><div class="pipe-b" id="pipe-new" style="width:30%;background:var(--blue)"></div></div><div class="pipe-n" id="nb-pipe-new">14</div></div>
+          <div class="pipe-row" onclick="goTo('interviews',null)" title="View interview schedule"><div class="pipe-dot" style="background:#6D28D9"></div><div class="pipe-name">Interview Scheduled</div><div class="pipe-bw"><div class="pipe-b" id="pipe-sch" style="width:17%;background:#6D28D9"></div></div><div class="pipe-n" id="nb-pipe-sch">8</div></div>
+          <div class="pipe-row" onclick="goTo('shortlisted',null)" title="View shortlisted candidates"><div class="pipe-dot" style="background:var(--amber)"></div><div class="pipe-name">Shortlisted</div><div class="pipe-bw"><div class="pipe-b" id="pipe-shl" style="width:26%;background:var(--amber)"></div></div><div class="pipe-n" id="nb-pipe-shl">12</div></div>
+          <div class="pipe-row" onclick="goTo('selected',null)" title="View selected candidates"><div class="pipe-dot" style="background:var(--green)"></div><div class="pipe-name">Selected</div><div class="pipe-bw"><div class="pipe-b" id="pipe-sel" style="width:9%;background:var(--green)"></div></div><div class="pipe-n" id="nb-pipe-sel">4</div></div>
+          <div class="pipe-row" onclick="goTo('rejected',null)" title="View rejected candidates"><div class="pipe-dot" style="background:var(--brand)"></div><div class="pipe-name">Rejected</div><div class="pipe-bw"><div class="pipe-b" id="pipe-rej" style="width:19%;background:var(--brand)"></div></div><div class="pipe-n" id="nb-pipe-rej">9</div></div>
         </div>
       </div>
       <div>
