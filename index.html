@@ -4719,4 +4719,60 @@ function addUser(){ saveUser(); }
 function editUser(uid){ openEditUserModal(uid); }
 function deactivateUser(uid){ toggleUserStatus(uid); }
 
+
+
+/* Settings tabs click fix */
+function switchSettingsTab(tabName, el){
+  try{
+    const settingsPage = document.getElementById('page-settings');
+    if(!settingsPage) return;
+    settingsPage.querySelectorAll('.tabs .tab').forEach(tab=>tab.classList.remove('active'));
+    settingsPage.querySelectorAll('[id^="settings-tab-"]').forEach(panel=>panel.classList.remove('active'));
+
+    const panel = document.getElementById('settings-tab-' + tabName);
+    if(panel) panel.classList.add('active');
+
+    if(el && el.classList) {
+      el.classList.add('active');
+    } else {
+      const tabs = settingsPage.querySelectorAll('.tabs .tab');
+      tabs.forEach(tab=>{
+        const key = (tab.textContent || '').trim().toLowerCase();
+        if(
+          (tabName === 'general' && key.includes('general')) ||
+          (tabName === 'pipeline' && key.includes('pipeline')) ||
+          (tabName === 'notifications' && key.includes('notification')) ||
+          (tabName === 'backup' && key.includes('backup')) ||
+          (tabName === 'security' && key.includes('security'))
+        ){
+          tab.classList.add('active');
+        }
+      });
+    }
+  }catch(err){
+    console.error('Settings tab switch failed:', err);
+    if(typeof toast === 'function') toast('Unable to open settings tab', 'error');
+  }
+}
+
+/* Extra safety: bind settings tab clicks after load as well */
+document.addEventListener('DOMContentLoaded', function(){
+  const settingsPage = document.getElementById('page-settings');
+  if(!settingsPage) return;
+  const map = {
+    'General': 'general',
+    'Pipeline Stages': 'pipeline',
+    'Notifications': 'notifications',
+    'Backup Config': 'backup',
+    'Security': 'security'
+  };
+  settingsPage.querySelectorAll('.tabs .tab').forEach(tab=>{
+    const label = (tab.textContent || '').trim();
+    const tabName = map[label];
+    if(!tabName) return;
+    tab.style.cursor = 'pointer';
+    tab.onclick = function(){ switchSettingsTab(tabName, this); };
+  });
+});
+
 </script>
